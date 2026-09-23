@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="gifpaint — paint and collage with images and animated gifs from the internet" />
+    <title>gifpaint</title>
+  </head>
+  <body>
+    <header id="topbar">
+      <span id="logo">gifpaint</span>
+      <div class="group" id="tools">
+        <button data-tool="paint" class="active" title="paint (B)">paint</button>
+        <button data-tool="select" title="select/move (V)">select</button>
+        <button data-tool="stamp" title="stamp image (S)">stamp</button>
+      </div>
+      <div class="group" id="brushes"></div>
+      <div class="group">
+        <input type="color" id="color" value="#ff7a4a" title="color" />
+        <label>size <input type="range" id="size" min="4" max="120" value="28" /></label>
+      </div>
+      <div class="group">
+        <button id="undo" title="⌘Z">undo</button>
+        <button id="redo" title="⇧⌘Z">redo</button>
+        <button id="clear">clear</button>
+      </div>
+      <div class="group">
+        <button id="save-png">png</button>
+        <button id="save-gif">gif</button>
+        <button id="save-webm">video</button>
+        <label>secs <input type="number" id="duration" min="1" max="10" value="2" /></label>
+      </div>
+      <div class="group">
+        <button id="save-project">save</button>
+        <button id="load-project">load</button>
+        <input type="file" id="project-file" accept=".json" hidden />
+      </div>
+      <span id="status"></span>
+    </header>
+
+    <aside id="library">
+      <div id="lib-tabs">
+        <button data-tab="gifs" class="active">gifs</button>
+        <button data-tab="images">images</button>
+        <button data-tab="uploads">uploads</button>
+      </div>
+      <form id="lib-search-form">
+        <input type="search" id="lib-search" placeholder="search giphy…" />
+      </form>
+      <div id="lib-grid"></div>
+      <button id="lib-more">more</button>
+      <input type="file" id="upload-file" accept="image/*,video/*" multiple hidden />
+    </aside>
+
+    <main id="stage">
+      <div id="canvas-wrap"><canvas id="canvas"></canvas></div>
+      <div id="props" hidden>
+        <label>scale <input type="range" id="p-scale" min="0.05" max="4" step="0.01" /></label>
+        <label>rotate <input type="range" id="p-rot" min="-180" max="180" step="1" /></label>
+        <label>opacity <input type="range" id="p-op" min="0.05" max="1" step="0.01" /></label>
+        <button id="p-delete">delete</button>
+      </div>
+      <div id="hint">pick a gif from the library, then paint to reveal it · drop images or videos anywhere to upload</div>
+    </main>
+
+    <aside id="layers">
+      <div class="panel-title">layers</div>
+      <div id="layer-list"></div>
+    </aside>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

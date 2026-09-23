@@ -1,0 +1,338 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  <link rel="stylesheet" type="text/css" href="css/convo.css">
+  </head>
+  <body>
+    <div id="container">
+      <aside>
+        <div id="roomBox">
+          <a href="#" id="addroom">add room</a>
+          <b>ROOMS</b>
+          <div id="rooms"></div>
+        </div>
+        <div id="convoBox">
+          <div id="conversation"></div>
+          <div id="inputBox">
+            <input id="data"/>
+            <input type="button" id="datasend" value="send" />
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="js/Three.js"></script>
+    <script src="js/Detector.js"></script>
+    <script src="js/Fog.js"></script>
+    <script src="js/Stats.js"></script>
+    <script src="js/TrackballControls.js"></script>
+    <script src="js/KeyboardState.js"></script>
+    <script src="js/THREEx.FullScreen.js"></script>
+    <script src="js/THREEx.WindowResize.js"></script>
+    <script src="js/ParticleEngine.js"></script>
+    <script src="js/ColladaLoader.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+
+
+      var socket = io.connect('http://hulea.org:8095');
+       // on connection to server, ask for user's name with an anonymous callback
+      socket.on('connect', function () {
+        // call the server-side function 'adduser' and send one parameter (value of prompt)
+        socket.emit('adduser', prompt("What's your name?"));
+        socket.emit('addroom', prompt("What is the name of your room?"));
+      });
+       // listener, whenever the server emits 'updatechat', this updates the chat body
+      socket.on('updatechat', function (username, data) {
+        $('#conversation').append('<b>' + username + ':</b> ' + data + '<br>');
+        var objDiv = document.getElementById("convoBox");
+        objDiv.scrollTop = objDiv.scrollHeight;
+        console.log('scroll');
+      });
+       // listener, whenever the server emits 'updaterooms', this updates the room the client is in
+      socket.on('updaterooms', function (rooms, current_room) {
+        $('#rooms').empty();
+        $.each(rooms, function (key, value) {
+          if (value == current_room) {
+            $('#rooms').append('<div>' + value + '</div>');
+          } else {
+            $('#rooms').append('<div><a href="#" onclick="switchRoom(\'' + value + '\')">' + value + '</a></div>');
+          }
+        });
+      });
+
+      function switchRoom(room) {
+        socket.emit('switchRoom', room);
+      }
+
+       // on load of page
+      $(function () {
+        $('#addroom').on('click',function(e){
+          e.preventDefault;
+          socket.emit('switchRoom', prompt("What is the name of your room?"));
+        })
+        // when the client clicks SEND
+        $('#datasend').on('click',function () {
+          var message = $('#data').val();
+          $('#data').val('');
+          // tell server to execute 'sendchat' and send along one parameter
+          socket.emit('sendchat', message);
+        });
+        // when the client hits ENTER on their keyboard
+        $('#data').on('keypress', function (e) {
+          if (e.which == 13) {
+            $(this).blur();
+            $('#datasend').focus().click();
+          }
+        });
+      });
+
+
+      if (!Detector.webgl) Detector.addGetWebGLMessage();
+      var keyboard = new KeyboardState();
+
+      var container, stats;
+      var camera, scene, renderer, controls, objects;
+      var particleLight, pointLight, hemiLight, directionalLight;
+      var envCube;
+      var dae, skin;
+      var loader = new THREE.ColladaLoader();
+
+      var setMaterial = function(node, material) {
+  node.material = material;
+  if (node.children) {
+    for (var i = 0; i < node.children.length; i++) {
+      setMaterial(node.children[i], material);
+    }
+  }
+};
+
+      //skybox vars//
+      var envPath = "./files/enviro/";
+      var envFormat = '.png';
+      var envUrls = [
+        envPath + 'px' + envFormat, envPath + 'nx' + envFormat,
+        envPath + 'py' + envFormat, envPath + 'ny' + envFormat,
+        envPath + 'pz' + envFormat, envPath + 'nz' + envFormat
+      ]; 
+      var textureCube = THREE.ImageUtils.loadTextureCube( envUrls );
+      //
+
+      loader.options.convertUpAxis = true;
+
+      loader.load('./files/teapot_ts.dae', function (collada) {
+        dae = collada.scene;
+        skin = collada.skins[0];
+        dae.scale.x = dae.scale.y = dae.scale.z = 2;
+        dae.updateMatrix();
+        init();
+        animate();
+        setMaterial(dae, new THREE.MeshPhongMaterial({ambient: 0x7d7da7, color: 0xff0000, metal: false, specular: 0xefefef, shininess: 100, reflectivity: .5, envMap: textureCube, combine: THREE.MultiplyOperation, side: THREE.DoubleSide}));
+      });
+
+      var mouse = new THREE.Vector2();
+      var offset = new THREE.Vector3( 10, 10, 10 );
+
+      function init() {
+        container = document.createElement('div');
+        document.body.appendChild(container);
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 50);
+        camera.position.x = 5;
+        camera.position.y = 5;
+        camera.position.z = 5;
+
+        controls = new THREE.TrackballControls( camera );
+        controls.rotateSpeed = 1.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        controls.noZoom = false;
+        controls.noPan = false;
+        controls.staticMoving = true;
+        controls.dynamicDampingFactor = 1;
+        controls.noRoll = true;
+        
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2( 0x6a6a8d, .04 );
+
+
+        // Grid MAJOR add //
+
+        var size = 50,
+        step = 1;
+        var geometry = new THREE.Geometry();
+        var gridMat = new THREE.LineBasicMaterial({
+          color: 0xb1b1e5
+        });
+        for (var i = -size; i <= size; i += step) {
+          geometry.vertices.push(new THREE.Vector3(-size, -0.04, i));
+          geometry.vertices.push(new THREE.Vector3(size, -0.04, i));
+          geometry.vertices.push(new THREE.Vector3(i, -0.04, -size));
+          geometry.vertices.push(new THREE.Vector3(i, -0.04, size));
+        }
+        var line = new THREE.Line(geometry, gridMat, THREE.LinePieces);
+        scene.add(line);
+
+        // Grid MINOR add //
+
+        var size = 50,
+        step = .1;
+        var geometry2 = new THREE.Geometry();
+        var grid2Mat = new THREE.LineBasicMaterial({
+          color: 0x7d7da7
+        });
+        for (var i = -size; i <= size; i += step) {
+          geometry2.vertices.push(new THREE.Vector3(-size, -0.04, i));
+          geometry2.vertices.push(new THREE.Vector3(size, -0.04, i));
+          geometry2.vertices.push(new THREE.Vector3(i, -0.04, -size));
+          geometry2.vertices.push(new THREE.Vector3(i, -0.04, size));
+        }
+        var line = new THREE.Line(geometry2, grid2Mat, THREE.LinePieces);
+        scene.add(line);
+
+        //  Skybox Map add//
+
+        var shader = THREE.ShaderLib[ "cube" ];
+        shader.uniforms[ "tCube" ].value = textureCube;
+
+        var envMat = new THREE.ShaderMaterial( {
+
+          fragmentShader: shader.fragmentShader,
+          vertexShader: shader.vertexShader,
+          uniforms: shader.uniforms,
+          side: THREE.BackSide
+
+        } );
+
+
+        /* //SKYBOX MESH OPTION//
+        envCube = new THREE.Mesh( new THREE.CubeGeometry( 100, 100, 100 ), envMat );
+        scene.add( envCube ); */
+
+
+
+        // Add the COLLADA File
+
+        scene.add(dae);
+
+        //LIGHTS//
+
+        light1 = new THREE.PointLight( { color: 0xffffff } );
+        scene.add( light1 );
+
+        light2 = new THREE.PointLight( { color: 0xffffff } );
+        scene.add( light2 );
+
+        hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
+        hemiLight.color.setHSL( 0.6, 1, 0.6 );
+        hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+        hemiLight.position.set( 0, 1, 0 );
+
+        scene.add( hemiLight );
+
+
+        //SCENE COMPLETE!//
+        
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+
+        renderer.setClearColor( 0x6a6a8d, 1);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+        stats = new Stats();
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = '0px';
+        container.appendChild(stats.domElement);
+        //
+        window.addEventListener('resize', onWindowResize, false);
+      }
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+       //
+      var t = 0;
+      var clock = new THREE.Clock();
+
+      function animate() {
+        var delta = clock.getDelta();
+        requestAnimationFrame(animate);
+        if (t > 1) t = 0;
+        if (skin) {
+          // guess this can be done smarter...
+          // (Indeed, there are way more frames than needed and interpolation is not used at all
+          //  could be something like - one morph per each skinning pose keyframe, or even less,
+          //  animation could be resampled, morphing interpolation handles sparse keyframes quite well.
+          //  Simple animation cycles like this look ok with 10-15 frames instead of 100 ;)
+          for (var i = 0; i < skin.morphTargetInfluences.length; i++) {
+            skin.morphTargetInfluences[i] = 0;
+          }
+          skin.morphTargetInfluences[Math.floor(t * 30)] = 1;
+          t += delta;
+        }
+        render();
+        update();
+      };
+
+      function update()
+{
+  keyboard.update();
+
+  var moveDistance = .25; 
+
+  if ( keyboard.pressed("W") )
+
+    camera.translateZ(-moveDistance);
+    if ( keyboard.pressed("A") )
+    camera.translateX(-moveDistance);
+      if ( keyboard.pressed("S") )
+    camera.translateZ(moveDistance);
+        if ( keyboard.pressed("D") )
+    camera.translateX(moveDistance);
+
+  if ( keyboard.pressed("1") )
+    camera.position.set( 5,5,5 );
+    camera.rotation.set( 0,0,0 );
+    if ( keyboard.pressed("2") )
+    camera.position.set( 5,5,-5 );
+    camera.rotation.set( 0,0,0 );
+    if ( keyboard.pressed("3") )
+    camera.position.set( -5,5,-5 );
+    camera.rotation.set( 0,0,0 );
+    if ( keyboard.pressed("4") )
+    camera.position.set( -5,5,5 );
+    camera.rotation.set( 0,0,0 );
+    if ( keyboard.pressed("right") )
+    camera.translateX( -1 );
+
+      if ( keyboard.pressed("X") )
+      controls.reset();
+
+
+  controls.update();  
+  stats.update();
+};
+
+
+      function render() {
+        var time = Date.now() * 0.0025;
+
+        light1.position.x = Math.sin( time * 0.7 ) * 2;
+        light1.position.z = Math.cos( time * 0.3 ) * 2;
+        light1.position.y = Math.cos( time * 0.3 ) * 2;
+        light2.position.x = Math.sin( time * 0.3 ) * 1;
+        light2.position.z = Math.cos( time * 0.7 ) * 1;
+        light2.position.y = Math.cos( time * 0.7 ) * 1;
+        camera.lookAt(dae.position);
+        camera.rotation.z = 0;
+        controls.update();
+        renderer.render(scene, camera);
+
+      };
+
+          
+    </script>
+  </body>
+</html>

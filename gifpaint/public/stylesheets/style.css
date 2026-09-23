@@ -1,0 +1,122 @@
+@media (max-width: 480px) {
+#contact  #page-wrap { width: 100% !important; margin:0 auto !important; }
+label.sub  { float:none !important; }
+#contact  #page-wrap  .rowElem label.error  { top: -10px !important; left: 81px !important;}
+#contact  #page-wrap  input[type=text], textarea  { width: 90% !important; }
+#contact  #page-wrap  #changeTypeArea             { width: 100% !important; }
+#services h3 {
+    font-size: 12px;
+    line-height: 10px;
+}
+	}
+@media (max-width: 320px) {
+#contact  #page-wrap { width: 100% !important; margin:0 auto !important; }
+label.sub  { float:none !important; }
+#contact  #page-wrap  .rowElem label.error  { top: -10px !important; left: 81px !important;}
+#contact  #page-wrap  input[type=text], textarea  { width: 90% !important; }
+#contact  #page-wrap  #changeTypeArea             { width: 100% !important; }
+	}
+
+
+#contact .clear                      { clear: both; }
+
+#contact  #page-wrap                  { width: 700px; margin: 40px auto; }
+
+#contact  #page-wrap  h1                          { font: 26px Georgia, Serif; margin: 10px 0; }
+
+#contact  #page-wrap  label                       { width: 190px; display: block; float:left;}
+
+#contact  #page-wrap  input[type=text], textarea  { width: 350px; outline: none; }
+
+#contact  #page-wrap  .rowElem 
+label.error                 { float: none; font-style: italic; color: red;
+                              position: absolute; top:9px; left:0;
+                              font-size: 11px; display: block; background-color: #000; padding: 0px; text-align: center; margin-top: 9px;}
+                              
+#contact  #page-wrap  .rowElem #jqTransformTextarea-mm
+label.error                 { top: 28px; }
+
+#contact  #page-wrap  #changeTypeArea             { float: left; margin: 0 0 10px 0; width: 350px; }
+
+#contact  #page-wrap  .rowElem                    { position: relative; clear: both; min-height: 35px; }
+#contact  #page-wrap  .rowElemSelect              { clear: both; min-height: 35px; }
+
+#contact #page-wrap .thanks {
+    color: black;
+    font-size: 45px;
+    font-weight: bold;
+    line-height: 60px;
+    text-transform: uppercase;
+}
+
+
+#contact  #page-wrap  .jqTransformTextarea, 
+#contact  #page-wrap  .jqTransformSelectWrapper   { margin: 0 0 8px 0; }
+
+
+/* more fucking custom styles for the services section*/
+
+
+svg#Layer_1 {
+    width: 100%;
+}
+#services p {
+    font-size: 16px;
+    font-weight: bold;
+}
+#services h3 {
+    font-size: 22px;
+    line-height: 20px;
+}
+
+/* more fucking custom styles for the services section this is the end of this */
+
+/* style for the fuckin magic background portion of the page - */
+
+.panel.red{
+background: red;
+padding-top: 0;
+}
+
+
+.panel{
+width: 100%;
+min-height: 805px;
+position: relative;
+z-index: 99;
+
+}
+
+.alcen{
+margin-top: 24%;
+width: 100%;
+}
+
+.magicsq{
+width: 0px;
+border: 0;
+border-left: solid 1024px red;
+border-top: solid 1024px transparent;
+position: absolute;
+left: 0;
+top:0;
+z-index: -2;
+min-height: 983px;
+}
+
+.magicsqb{
+width: 0px;
+height: 0px;
+border: 0;
+border-right: solid 1024px red;
+border-bottom: solid 1024px transparent;
+position: absolute;
+left: 0;
+top:0;
+z-index: -2;
+height: 0;
+}
+
+/* style for the fuckin magic background portion of the page - here's where it ends*/
+
+

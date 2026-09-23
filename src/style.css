@@ -1,0 +1,524 @@
+/* gifpaint — visual language borrowed from Kuzic (deep-space observatory):
+   graphite floor + warm halo + film grain, lifted-glass panels (inset rim +
+   bloom), one orange ember for anything that acts, whisper focus rings. */
+
+:root {
+  /* oklch channel triplets (Kuzic --fey-*) composed with alpha below */
+  --floor: 0.1394 0 0;
+  --floor-2: 0.1294 0 0;
+  --halo: 0.2221 0.0216 62.54;
+  --halo-mid: 0.1579 0 0;
+  --wash: 0.1698 0 0;
+  --panel: #131313; /* obsidian */
+  --panel-2: #191919; /* coal dust — inputs, pills, hover wash base */
+  --hairline: #1f1f1f;
+  --text: #ffffff;
+  --text-2: #868f97; /* slate */
+  --text-warm: #f5f2ea;
+  --ember: #ff7a4a; /* the one accent — only for things that act */
+  --ring: hsl(0 0% 100% / 0.18);
+  --rim: inset 0 1px 0 0 hsl(0 0% 100% / 0.1);
+  --bloom: 0 18px 44px -8px rgba(0, 0, 0, 0.8);
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  color: var(--text);
+  font: 400 13px/1.36 var(--sans);
+}
+
+/* graphite floor + film grain + bottom-left wash + top-center warm halo */
+body {
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/></svg>"),
+    radial-gradient(ellipse 90% 60% at 15% 100%, oklch(var(--wash) / 0.6) 0%, transparent 60%),
+    radial-gradient(ellipse 130% 75% at 50% -10%, oklch(var(--halo) / 0.85) 0%, oklch(var(--halo-mid) / 0.4) 45%, transparent 75%),
+    linear-gradient(oklch(var(--floor)), oklch(var(--floor-2)));
+  background-attachment: fixed;
+  background-size: 240px 240px, auto, auto, auto;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+
+  display: grid;
+  grid-template-rows: 48px 1fr;
+  grid-template-columns: 224px 1fr 200px;
+  grid-template-areas:
+    'top top top'
+    'lib stage layers';
+}
+
+/* ── controls ── */
+button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid transparent; /* reserved so layout never shifts */
+  border-radius: 99px;
+  padding: 4px 9px;
+  font: 500 12px var(--sans);
+  cursor: pointer;
+  position: relative;
+}
+
+/* hover = +white wash, never a hue shift */
+button:hover:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: hsl(0 0% 100% / 0.06);
+  pointer-events: none;
+}
+
+button:active:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: hsl(0 0% 100% / 0.09);
+  pointer-events: none;
+}
+
+button.active {
+  background: var(--ember);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+:is(button, input):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--ring); /* whisper focus — never a colored ring */
+}
+
+input[type='search'],
+input[type='number'] {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  font: 400 12px var(--sans);
+  padding: 5px 8px;
+}
+
+input[type='search']::placeholder {
+  color: var(--text-2);
+}
+
+input[type='number'] {
+  width: 40px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+input[type='range'] {
+  accent-color: var(--ember);
+  vertical-align: middle;
+  width: 72px;
+}
+
+input[type='color'] {
+  width: 26px;
+  height: 26px;
+  padding: 2px;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  background: var(--panel-2);
+  cursor: pointer;
+}
+
+label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  color: var(--text-2);
+}
+
+/* hairlines that fade at their ends — atmospheric, not a rule */
+.group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: 7px;
+  position: relative;
+}
+
+.group::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 15%;
+  bottom: 15%;
+  width: 1px;
+  background: linear-gradient(transparent, var(--hairline) 30%, var(--hairline) 70%, transparent);
+}
+
+/* ── topbar: translucent glass strip, rim only (no drop over the halo) ── */
+#topbar {
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  background: hsl(0 0% 100% / 0.045);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--hairline);
+  box-shadow: var(--rim);
+  overflow-x: auto;
+  z-index: 2;
+}
+
+#logo {
+  color: var(--text-warm);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+#logo::after {
+  content: '.';
+  color: var(--ember); /* the wordmark dot — brand ember */
+}
+
+#status {
+  margin-left: auto;
+  color: var(--text-2);
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+/* ── side panels: lifted panes of dark glass ── */
+#library,
+#layers {
+  background: var(--panel);
+  box-shadow: var(--rim), var(--bloom);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  z-index: 1;
+}
+
+#library {
+  grid-area: lib;
+  border-right: 1px solid var(--hairline);
+}
+
+#layers {
+  grid-area: layers;
+  border-left: 1px solid var(--hairline);
+}
+
+.panel-title {
+  padding: 10px 12px;
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  position: relative;
+}
+
+.panel-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--hairline) 20%, var(--hairline) 80%, transparent);
+}
+
+/* ── library ── */
+#lib-tabs {
+  display: flex;
+  padding: 8px 8px 0;
+  gap: 2px;
+}
+
+#lib-tabs button {
+  flex: 1;
+  border-radius: 99px;
+  color: var(--text-2);
+  padding: 5px 0;
+}
+
+#lib-tabs button.active {
+  background: var(--ember);
+  color: #fff;
+}
+
+#lib-search-form {
+  padding: 8px;
+}
+
+#lib-search {
+  width: 100%;
+}
+
+#lib-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 5px 8px;
+  align-content: start;
+}
+
+.lib-cell {
+  position: relative;
+  cursor: pointer;
+  aspect-ratio: 4/3;
+  background: var(--panel-2);
+  border: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--rim);
+  padding: 0;
+}
+
+.lib-cell:focus-visible {
+  outline: none;
+  box-shadow: var(--rim), 0 0 0 1px var(--ring);
+}
+
+/* skeleton cells mirror grid geometry — shimmer, never a spinner, never ember-tinted */
+.lib-skel {
+  aspect-ratio: 4/3;
+  border-radius: 6px;
+  background:
+    linear-gradient(100deg, transparent 30%, hsl(0 0% 100% / 0.05) 50%, transparent 70%)
+      no-repeat 0 0 / 200% 100%,
+    var(--panel-2);
+  animation: skel-sweep 1.4s linear infinite;
+}
+
+@keyframes skel-sweep {
+  to {
+    background-position: -200% 0, 0 0;
+  }
+}
+
+/* empty state — one warm line + the next action */
+.lib-empty {
+  padding: 18px 4px;
+  color: var(--text-2);
+  text-align: center;
+  grid-column: 1 / -1;
+}
+
+.lib-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lib-cell.picked {
+  box-shadow: 0 0 0 2px var(--ember); /* picked asset acts — it earns the ember */
+}
+
+.lib-add {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 99px;
+  font: 500 12px var(--sans);
+  color: var(--text);
+  background: rgba(19, 19, 19, 0.75);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--rim);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.lib-cell:hover .lib-add,
+.lib-cell:focus-visible .lib-add {
+  opacity: 1;
+}
+
+/* spinning-plus create affordance — quarter turn on hover; 4-fold symmetric so it lands at rest */
+.lib-add span {
+  display: block;
+  transition: transform 0.3s ease-in-out;
+}
+
+.lib-add:hover span,
+.lib-add:active span {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lib-add span {
+    transition: none;
+  }
+
+  .lib-skel {
+    animation: none;
+  }
+}
+
+#lib-more {
+  margin: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--rim);
+}
+
+/* ── stage: artwork floats as a lifted pane over the observatory floor ── */
+#stage {
+  grid-area: stage;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px;
+}
+
+#canvas-wrap {
+  position: absolute;
+  inset: 16px;
+  border-radius: 16px; /* card rung of the radius ladder (input 6 / card 16 / pill 99) */
+  overflow: hidden;
+  background: #111213; /* art floor — near-black, never pure */
+  box-shadow: var(--rim), var(--bloom);
+}
+
+#canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+#props[hidden] {
+  display: none;
+}
+
+#props {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background: rgba(19, 19, 19, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--hairline);
+  border-radius: 99px;
+  padding: 8px 16px;
+  box-shadow: var(--rim), var(--bloom);
+  z-index: 2;
+}
+
+#hint {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-2);
+  pointer-events: none;
+  font-size: 12px;
+}
+
+/* ── layers ── */
+#layer-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse; /* top of list = top of stack */
+  justify-content: flex-end; /* anchor rows at the visual top */
+  padding: 4px;
+  gap: 2px;
+}
+
+.layer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 6px 4px 9px;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+.layer:hover {
+  background: hsl(0 0% 100% / 0.04);
+}
+
+/* active state lives INSIDE the surface — an inner-left ember rail */
+.layer.selected {
+  background: var(--panel-2);
+  box-shadow: var(--rim);
+}
+
+.layer.selected::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--ember);
+}
+
+.layer img,
+.layer .swatch {
+  width: 32px;
+  height: 24px;
+  object-fit: cover;
+  background: var(--panel-2);
+  border-radius: 4px;
+  flex: none;
+  box-shadow: var(--rim);
+}
+
+.layer .name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-warm);
+  font-size: 12px;
+}
+
+.layer button {
+  padding: 1px 5px;
+  color: var(--text-2);
+  font-size: 10px;
+}
+
+/* thin observatory scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hairline);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

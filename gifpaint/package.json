@@ -1,0 +1,12 @@
+{
+  "name": "hello-world",
+  "description": "hello world test app",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.9.0",
+    "express": "4.x",
+    "gm": "*",
+    "nodemailer": "*"
+  }
+}

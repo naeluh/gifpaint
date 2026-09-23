@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<meta charset="utf-8">
+<title>gpaint.in</title>
+<meta name="description" content="click and move your mouse to paint and collage with random gifs from the internet"/>
+<meta name = "viewport" content = "user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<style id="jsbin-css">
+body {
+    margin: 0 auto;
+}
+html {
+    font-family:"Lucida Console", "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace;
+    overflow: hidden;
+}
+canvas {
+    position:absolute;
+    top:0px;
+    left:0px;
+    overflow: hidden;
+}
+#loading {
+    overflow: hidden;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 30%;
+    height: 100%;
+    color: #fff;
+    /* padding: 5%; */
+    margin: 0 auto;
+}
+#loading p {
+    float:left;
+    margin-right:9%;
+}
+#contain {
+    position: absolute;
+    margin: 0 auto;
+    background: #000;
+    width: 100%;
+    height: 100%;
+    line-height: 10px;
+}
+</style>
+</head>
+<body>
+<div id="contain">
+
+<div id="loading" style="display:none;">
+<p style="float:left;margin-right:2%;font-family: "Lucida Console", "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace;">Loading....</p>
+</div>
+</div>
+<div id="gifs" style="display:block;"></div>
+
+<script src="http://aa8f47fcc01b7584f779-b57f388ffba74a9d5600392ce75da4b1.r13.cf2.rackcdn.com/gif.js"></script>
+<script src="http://aa8f47fcc01b7584f779-b57f388ffba74a9d5600392ce75da4b1.r13.cf2.rackcdn.com/AnimationFrame.js"></script>
+<script id="jsbin-javascript">
+    var ajaxlength = [];
+    var value = isNaN(value) ? 0 : value;
+    var valueajax = isNaN(valueajax) ? 0 : valueajax;
+    var cvs = document.getElementById("mycanvas");
+
+    var animationFrame = new AnimationFrame(120);
+    var ct = [];
+    var ct2 = [];
+    var g = [];
+    var gifLoad = [];
+    var canarr = [];
+    var canarr2 = [];
+    var trueArr = [];
+
+    function extractToken(hash) {
+        var match = hash.match(/access_token=(\w+)/);
+        return !!match && match[1];
+    }
+    var token = extractToken(document.location.hash);
+    var clientId = "b144351ffb05838";
+
+    if (token) {authorization = "Bearer " + token;} else {authorization = "Client-ID " + clientId;}
+
+    $.ajax({
+        url         : "https://api.imgur.com/3/gallery/random/random/page=" + Math.floor(Math.random() * 50),
+        method      : "GET",
+        headers     : {Authorization: authorization, Accept: "application/json"},
+        crossDomain : true,
+        data        : {image: localStorage.dataBase64, type: "base64"},
+        beforeSend  : function () {$("#loading").css("display", "block");},
+        success     : function (result) {
+            $.each(result.data, function (idx, image) {
+                if ((result.data[idx].animated !== false) && (result.data[idx].is_album !== true)) {
+                    var newimage = GIF(image.link);
+                    newimage.render();
+                    g.push (newimage);
+                    $("#gifs").html(g.length);
+                                      recursiveLoad(newimage);
+                }
+            });
+        }
+    });
+
+   function recursiveLoad(img) {
+       setTimeout(function () {
+           var colorA = "#" + Math.random().toString(16).slice(2, 8);
+           if (img.rendered === true) {
+               done(img, colorA);
+           } else {
+               recursiveLoad(img);
+           }
+       }, 1000);
+   }
+
+   function done(image, color) {
+       trueArr.push(image.src);
+       $("#loading").append('<p style="color:' + color + ';">' + trueArr.length + '</>');
+       if (g.length === trueArr.length) {
+           $("#loading").fadeOut(2E3);
+           $("#contain").fadeOut(2E3);
+           animloop();
+       }
+   }
+
+   function createCanvas(arrayOne, arrayTwo) {
+       var canvas = document.createElement('canvas');
+       canvas.width = window.innerWidth;
+       canvas.height = window.innerHeight;
+       document.body.appendChild(canvas);
+       var context = canvas.getContext('2d');
+       arrayOne.push(context);
+       if (arrayTwo) {
+           arrayTwo.push(canvas);
+       }
+   }
+
+   function getRandomInt(min, max) {
+       return Math.floor(Math.random() * (max - min + 1)) + min;
+   }
+
+   window.addEventListener('mousemove', function (e) {
+       for (var i = 0; i < g.length; i++) {
+           var ctxNum2 = i % ct2.length;
+           var ctx2 = ct2[ctxNum2];
+           if (ct2.length <= 0) continue;
+           ctx2.globalCompositeOperation = 'source-over';
+           ctx2.beginPath();
+           ctx2.arc(e.pageX, e.pageY, 54.45645654645645645, 0, Math.PI * 2, false);
+           ctx2.fill();
+           ctx2.fillStyle = "rgba(255,255,255,1)";
+       }
+   });
+
+   window.addEventListener('mousedown', function (e) {
+       createCanvas(ct, canarr);
+       createCanvas(ct2);
+   });
+
+   document.addEventListener('touchstart',function (e) {
+       createCanvas(ct, canarr);
+       createCanvas(ct2);
+   });
+     
+   document.addEventListener('touchmove',function (e) {
+       for (var i = 0; i < g.length; i++) {
+           var ctxNum2 = i % ct2.length;
+           var ctx2 = ct2[ctxNum2];
+           if (ct2.length <= 0) continue;
+           ctx2.globalCompositeOperation = 'source-over';
+           ctx2.beginPath();
+           ctx2.arc(e.pageX, e.pageY, 54.45645654645645645, 0, Math.PI * 2, false);
+           ctx2.fill();
+           ctx2.fillStyle = "rgba(255,255,255,1)";
+       }
+   });
+
+   function animloop() {
+       animationFrame.request(animloop);
+       for (var i = 0; i < g.length; i++) {
+           var gifNum = i % g.length;
+           var gif = g[gifNum];
+           var ctx = ct[gifNum];
+           var ctx2 = ct2[gifNum];
+           var can = canarr[gifNum];
+           if (ct.length > 0 && ct2.length > 0 && canarr.length > 0 && g.length > 0 && ctx !== undefined) {
+               if (gif.rendered === true && gif.loaded === true) {
+                   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                   ctx.globalCompositeOperation = 'source-over';
+                   ctx2.globalCompositeOperation = 'source-atop';
+                   ctx2.drawImage(gif.frames[gif.currentFrame()].ctx.canvas, 0, 0, window.innerWidth, window.innerHeight);
+                   ctx.drawImage(can, 0, 0, window.innerWidth, window.innerHeight);
+                   ctx.globalCompositeOperation = 'source-atop';
+               }
+           }
+       }
+   }
+</script>
+</body>
+</html>

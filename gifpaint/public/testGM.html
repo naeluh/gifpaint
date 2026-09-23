@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://yastatic.net/jquery/1.11.1/jquery.min.js"></script>
+<meta name="description" content="gif painting" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0" />
+<meta http-equiv="no-cache">
+<meta http-equiv="Expires" content="-1">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta charset="utf-8">
+<title>&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;</title>
+<style id="jsbin-css">
+body{margin:0 auto}html{font-family:Frutiger,"Frutiger Linotype",Univers,Calibri,"Gill Sans","Gill Sans MT","Myriad Pro",Myriad,"DejaVu Sans Condensed","Liberation Sans","Nimbus Sans L",Tahoma,Geneva,"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:1px;overflow:hidden;color:#fff;font-weight:700;-webkit-text-shadow:0 0 10px #000;text-shadow:0 0 10px #000}a{text-decoration:none}a:link{color:#C0FF40}a:visited{color:#C0FF40}a:hover{color:#0080FF}a:active{color:#40C0C0}canvas{-ms-touch-action:none;position:absolute;top:0;left:0;overflow:hidden}#loading,#loadingMore{position:relative;top:0;left:0;width:40%;color:#fff;margin:0 auto;font-size:17px}#instructions{position:relative;margin:0 auto;background:#222;width:80%;height:200px;font-size:16px}#loading p,#loadingMore p{float:left;margin-right:9%}#contain{position:absolute;margin:0 auto;background:#222;width:100%;height:100%;z-index:9999}#ok{font-size:12px;width:82px;height:15px;background:#fff;color:#000;cursor:pointer;padding:9px;text-align:center}#ok:hover{background:#aaa}#amount p{-ms-touch-action:none;position:absolute;top:0;left:13px;font-size:45px;z-index:9999;color:rgba(255,255,255,1);text-shadow:0 0 12px #000;margin:0 auto}
+</style>
+</head>
+<body>
+<script src="http://yastatic.net/modernizr/2.7.1/modernizr.min.js"></script>
+<script src="http://aa8f47fcc01b7584f779-b57f388ffba74a9d5600392ce75da4b1.r13.cf2.rackcdn.com/gif.min.js"></script>
+<script src="http://aa8f47fcc01b7584f779-b57f388ffba74a9d5600392ce75da4b1.r13.cf2.rackcdn.com/anime.min.js"></script>
+<script type="text/javascript">
+var fs = require('fs')
+  , gm = require('./gm');
+
+// crazytown
+gm('/imgs/FAYQ5aB.jpg')
+.flip()
+.magnify()
+.rotate('green', 45)
+.blur(7, 3)
+.crop(300, 300, 150, 130)
+.edge(3)
+.write('/imgs/crazy/crazy.jpg', function (err) {
+  if (!err) console.log('crazytown has arrived');
+})
+
+</script>
+
+</body>
+</html>

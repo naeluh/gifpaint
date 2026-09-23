@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="description" content="gif painting: use your mouse or finger to paint with animated gifs from the interwebs" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0" />
+<meta http-equiv="no-cache">
+<meta http-equiv="Expires" content="-1">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta charset="utf-8">
+<meta property="og:title" content="gif painting"/>
+<meta property="og:image" content="http://files.hulea.org/gpaint.png"/>
+<meta property="og:site_name" content="gif painting"/>
+<meta property="og:description" content="gif painting: use your mouse or finger to paint with animated gifs from the interwebs"/>
+  
+<title>gifpaint.in</title>
+<style id="jsbin-css">
+body{margin:0 auto}html{font-family:Frutiger,"Frutiger Linotype",Univers,Calibri,"Gill Sans","Gill Sans MT","Myriad Pro",Myriad,"DejaVu Sans Condensed","Liberation Sans","Nimbus Sans L",Tahoma,Geneva,"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:1px;overflow:hidden;color:#fff;font-weight:700;-webkit-text-shadow:0 0 10px #000;text-shadow:0 0 10px #000}a{text-decoration:none}a:link{color:#C0FF40}a:visited{color:#C0FF40}a:hover{color:#0080FF}a:active{color:#40C0C0}canvas{-ms-touch-action:none;position:absolute;top:0;left:0;overflow:hidden}#loading,#loadingMore{position:relative;top:0;left:0;width:40%;color:#fff;margin:0 auto;font-size:17px}#instructions{position:relative;margin:0 auto;background:#222;width:80%;height:200px;font-size:16px}#loading p,#loadingMore p{float:left;margin-right:9%}#contain{position:absolute;margin:0 auto;background:#222;width:100%;height:100%;z-index:9999}#ok{font-size:12px;width:82px;height:15px;background:#fff;color:#000;cursor:pointer;padding:9px;text-align:center}#ok:hover{background:#aaa}#amount p{-ms-touch-action:none;position:absolute;top:0;left:13px;font-size:45px;z-index:9999;color:rgba(255,255,255,1);text-shadow:0 0 12px #000;margin:0 auto}
+</style>
+</head>
+<body>
+<div id="contain">
+<div id="instructions" style="display:none;">
+  <p><u>GIF PAINTING</u></p>
+  <p>NEW VERSION 0.2</p>
+  <p>- Number at the top left is the number of GIFS to USE</p>
+  <p>- Issues <a href="http://hulea.org/" target="_blank">email me</a></p>
+  <p>Stop by frequently to check for updates!!!</p>
+  <p id="gifs"></p>
+  <div style="clear:both;"></div>
+  <div id="version"></div>
+  <div id="ok">Ok, got it!</div>
+</div>
+<div id="loading" style="display:none;">
+<p style="float:left;margin-right:2%;">Loading Gifs....</p>
+</div>
+<div id="loadingMore" style="display:none;">
+<p style="float:left;margin-right:2%;">Loading More Gifs....</p>
+</div>
+</div>
+<div id="amount"></div>
+<script src="https://yastatic.net/jquery/3.1.1/jquery.min.js"></script>
+<script async src="/js/modernizr.min.js"></script>
+<script async src="/js/gif.min.js"></script>
+<script src="/js/anime.min.js"></script>
+<script type="text/javascript">
+////Check on this CHROME Version 40.0.2214.93 m (64-bit) breaks shadowBlur 
+window.mobilecheck=function(){var b=!1,a=navigator.userAgent||navigator.vendor||window.opera;if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|android|ipad|playbook|silk|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,
+4)))b=!0;return b};
+var ajaxlength=[],value=isNaN(value)?10:value,loadNum=isNaN(loadNum)?0:loadNum,click=isNaN(click)?0:click,imgFinsihed=isNaN(imgFinsihed)?0:imgFinsihed,animationFrame=new AnimationFrame,ct=[],ct2=[],g=[],canarr=[],canarr2=[],trueArr=[],pos=[],prevVelocity=null,ok=document.getElementById("ok"),v=document.getElementById("version"),imgur=function(){loadNum++;var b=function(a){a=a.match(/access_token=(\w+)/);return!!a&&a[1]}(document.location.hash);authorization=b?"Bearer "+b:"Client-ID b144351ffb05838";$.ajax({url:"https://api.imgur.com/3/gallery/random/random/page="+
+Math.floor(50*Math.random()),method:"GET",headers:{Authorization:authorization,Accept:"application/json"},crossDomain:!0,data:{image:localStorage.dataBase64,type:"base64"},beforeSend:function(){2<=loadNum?($("#loadingMore").css("display","block"),$("#contain").css("display","block")):$("#loading").css("display","block")},success:function(a){$.each(a.data,function(b,c){if(!1!==a.data[b].animated&&!0!==a.data[b].is_album&&"image/gif"===a.data[b].type&&2E6>a.data[b].size){var e=GIF(c.link);e.render();
+g.push(e);recursiveLoad(e)}})}})};function recursiveLoad(b){setTimeout(function(){var a="#"+Math.random().toString(16).slice(2,8);!0===b.rendered?done(b,a):recursiveLoad(b)},1E3)}
+function done(b,a){trueArr.push(b.src);imgFinsihed++;2<=loadNum?$("#loadingMore").append('<p style="color:'+a+';">'+imgFinsihed+"</>"):$("#loading").append('<p style="color:'+a+';">'+imgFinsihed+"</>");g.length===trueArr.length&&(2<=loadNum?($("#loadingMore").fadeOut(100),$("#contain").fadeOut(100),$("#amount").show(),$("#amount").html('<p style="color:'+a+';">'+imgFinsihed+"</>"),init()):(mobilecheck()?v.innerHTML="<p>MOBILE:</p><p>Tap and Drag: Loads New Gif from the Internet and Paints Gif</p>":
+v.innerHTML="<p>DESKTOP:</p><p>Click and Release: Loads New Gif from the Internet</p><p>Mouse Move: Paints Gif!</p>",$("#loading").fadeOut(100),$("#instructions").fadeIn(100),animloop(),ok.addEventListener("click",function(){$("#contain").fadeOut(100);$("#instructions").fadeOut(100);$("#amount").html("<p>"+imgFinsihed+"</>");init()})))}function calculateVelocities(b){return b.reduce(function(a,b,c,e){if(0<c){--c;var f=b.x-e[c].x,h=b.y-e[c].y;a.push(Math.sqrt(f*f+h*h)/(e[c].t-b.t))}return a},[])}
+function calculateAccelerations(b){return b.reduce(function(a,b,c,e){0<c&&a.push(e[c-1]-b);return a},[])}function average(b){return 0<b.length?b.reduce(function(a,b){return a+b},0)/b.length:0}function createCanvas(b,a){var d=document.createElement("canvas");d.width=window.innerWidth;d.height=window.innerHeight;document.body.appendChild(d);var c=d.getContext("2d");b.push(c);a&&a.push(d)}
+function create(b){var a="#"+Math.random().toString(16).slice(2,8);click++;$("#amount").html('<p style="color:'+a+';">'+imgFinsihed--+"</>");-1===imgFinsihed?(imgFinsihed=click=0,$("#loadingMore").html('<p style="float:left;margin-right:2%;">Loading More Gifs....</p>'),$("#amount").hide(),document.removeEventListener("touchstart",create),document.removeEventListener("touchmove",drawMobi),window.removeEventListener("mousedown",create),window.removeEventListener("mousemove",drawDesk),imgur()):(createCanvas(ct,
+canarr),createCanvas(ct2));b.preventDefault()}function drawMobi(b){var a=ct2[Number(ct2.length)-1];Number(ct2.length)-1>=Number(g.length)&&(a=ct2[Number(g.length)-1]);void 0!==a&&(a.globalCompositeOperation="source-over",a.beginPath(),a.shadowBlur=20,a.shadowColor="rgb(0, 0, 0)",a.arc(b.touches[0].clientX,b.touches[0].clientY,34.46344536563456,0,2*Math.PI,!1),a.fillStyle="rgba(0,0,0,0.5)");b.preventDefault()}
+function drawDesk(b){pos.unshift({x:b.clientX,y:b.clientY,t:performance.now()});pos.length=Math.min(pos.length,30);var a=calculateVelocities(pos),d=calculateAccelerations(a);average(a);r=0<=average(d)?value++:value--;100<r&&(r=value-=100);5>r&&(r=value+=100);a=ct2[Number(ct2.length)-1];Number(ct2.length)-1>=Number(g.length)&&(a=ct2[Number(g.length)-1]);void 0!==a&&(a.globalCompositeOperation="source-over",a.beginPath(),a.arc(b.clientX,b.clientY,r,0,2*Math.PI,!1),a.fillStyle="rgba(0,0,0,0.5)");b.preventDefault()}
+function init(){mobilecheck()?(document.addEventListener("touchstart",create),document.addEventListener("touchmove",drawMobi),isTouch=!0):(window.addEventListener("mousedown",create),window.addEventListener("mousemove",drawDesk),isTouch=!1)}
+function animloop(){animationFrame.request(animloop);for(var b=0;b<g.length;b++){var a=b%g.length,d=g[a],c=ct[a],e=ct2[a],a=canarr[a];0<ct.length&&0<ct2.length&&0<canarr.length&&0<g.length&&void 0!==c&&!0===d.rendered&&!0===d.loaded&&(e.fill(),c.clearRect(0,0,window.innerWidth,window.innerHeight),c.globalCompositeOperation="source-over",e.globalCompositeOperation="source-atop",e.drawImage(d.frames[d.currentFrame()].ctx.canvas,0,0,window.innerWidth,window.innerHeight),c.drawImage(a,0,0,window.innerWidth,
+window.innerHeight),c.globalCompositeOperation="source-atop")}}function resize(){for(var b=0;b<g.length;b++){var a=canarr[b],d=canarr2[b];a.width=window.innerWidth;a.height=window.innerHeight;d.width=window.innerWidth;d.height=window.innerHeight}}window.addEventListener("resize",resize);window.addEventListener("orientaionChange",resize);imgur();
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-55648701-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

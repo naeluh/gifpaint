@@ -1,0 +1,30 @@
+Always follow these rules for each session we conduct
+
+- Do not introduce new style files unless necessary; prefer existing classes and variables.
+- We use bun not npm
+- use JS required
+- add correct JSDoc required
+- create comprehensive tests to confirm that this code works
+- update README.md for this work
+- update related items in README.md for this work
+- update CHANGELOG for this work
+- create claude rules and skills to optimize the outcomes going forward
+- update related claude rules and skills to optimize the outcomes going forward
+- simplicity over complexity update what we have, don't create anything if you don't have to
+- don't make the same mistakes twice
+- do this and nothing else
+- use .claude/rules/ponytail.md
+- add correct JSDoc required
+- use lucide icons to help users understand the function of a method if needed required
+- if you need to add a button use a dark mode ghost button with an icon
+- use dark mode storybook UI for dashboard if available
+- create comprehensive tests to confirm that this code works
+- update README.md for this work
+- update related items in README.md for this work
+- update CHANGELOG for this work
+- use claude rules and skills to optimize the outcomes
+- create claude rules and skills to optimize the outcomes going forward
+- update related claude rules and skills to optimize the outcomes going forward
+- simplicity over complexity update what we have, don't create anything if you don't have to
+- don't make the same mistakes twice
+- do this and nothing else

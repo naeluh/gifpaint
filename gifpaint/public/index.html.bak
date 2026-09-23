@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<meta name="description" content="gifpainting wip rectangle instead of circle" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0" />
+<meta charset="utf-8">
+<title>&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;&#9787;</title>
+<style id="jsbin-css">
+body {
+    margin: 0 auto;
+}
+html {
+    font-family:"Lucida Console", "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace;
+    overflow: hidden;
+}
+canvas {
+    position:absolute;
+    top:0px;
+    left:0px;
+    overflow: hidden;
+}
+#loading {
+    overflow: hidden;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 30%;
+    height: 100%;
+    color: #fff;
+    /* padding: 5%; */
+    margin: 0 auto;
+}
+#loading p {
+    float:left;
+    margin-right:9%;
+}
+#contain {
+    position: absolute;
+    margin: 0 auto;
+    background: #000;
+    width: 100%;
+    height: 100%;
+    line-height: 10px;
+}
+</style>
+</head>
+<body>
+<div id="contain">
+<div id="loading" style="display:none;">
+<p style="float:left;margin-right:2%;">Loading....</p>
+</div>
+</div>
+<div id="testbox"></div>
+<div id="gifs" style="display:block;"></div>
+<script src="http://aa8f47fcc01b7584f779-b57f388ffba74a9d5600392ce75da4b1.r13.cf2.rackcdn.com/gif.js"></script>
+<script src="http://aa8f47fcc01b7584f779-b57f388ffba74a9d5600392ce75da4b1.r13.cf2.rackcdn.com/AnimationFrame.js"></script>
+<script type="text/javascript">
+var ajaxlength=[],value=isNaN(value)?10:value,animationFrame=new AnimationFrame,ct=[],ct2=[],g=[],canarr=[],canarr2=[],trueArr=[],pos=[],prevVelocity=null;function extractToken(a){a=a.match(/access_token=(\w+)/);return!!a&&a[1]}var token=extractToken(document.location.hash),clientId="b144351ffb05838";authorization=token?"Bearer "+token:"Client-ID "+clientId;
+$.ajax({url:"https://api.imgur.com/3/gallery/random/random/page="+Math.floor(50*Math.random()),method:"GET",headers:{Authorization:authorization,Accept:"application/json"},crossDomain:!0,data:{image:localStorage.dataBase64,type:"base64"},beforeSend:function(){$("#loading").css("display","block")},success:function(a){$.each(a.data,function(b,d){if(!1!==a.data[b].animated&&!0!==a.data[b].is_album){var c=GIF(d.link);c.render();g.push(c);$("#gifs").html(g.length);recursiveLoad(c)}})}});
+function recursiveLoad(a){setTimeout(function(){var b="#"+Math.random().toString(16).slice(2,8);!0===a.rendered?done(a,b):recursiveLoad(a)},1E3)}function done(a,b){trueArr.push(a.src);$("#loading").append('<p style="color:'+b+';">'+trueArr.length+"</>");g.length===trueArr.length&&($("#loading").fadeOut(100),$("#contain").fadeOut(100),animloop(),mouseInit())}
+function calculateVelocities(a){return a.reduce(function(b,a,c,e){if(0<c){c-=1;var f=a.x-e[c].x,h=a.y-e[c].y;b.push(Math.sqrt(f*f+h*h)/(e[c].t-a.t))}return b},[])}function calculateAccelerations(a){return a.reduce(function(a,d,c,e){0<c&&a.push(e[c-1]-d);return a},[])}function average(a){return 0<a.length?a.reduce(function(a,d){return a+d},0)/a.length:0}
+function createCanvas(a,b){var d=document.createElement("canvas");d.width=window.innerWidth;d.height=window.innerHeight;document.body.appendChild(d);var c=d.getContext("2d");a.push(c);b&&b.push(d)}
+function mouseInit(){window.addEventListener("mousedown",function(a){createCanvas(ct,canarr);createCanvas(ct2)});window.addEventListener("mousemove",function(a){pos.unshift({x:a.clientX,y:a.clientY,t:performance.now()});pos.length=Math.min(pos.length,30);var b=calculateVelocities(pos),d=calculateAccelerations(b);average(b);r=0<=average(d)?value++:value--;100<r&&(r=value-=100);5>r&&(r=value+=100);b=ct2[Number(ct2.length)-1];Number(ct2.length)-1>=Number(g.length)&&(b=ct2[Number(g.length)-1]);void 0!==
+b&&(b.globalCompositeOperation="source-over",b.beginPath(),b.shadowBlur=20,b.shadowColor="rgb(0, 0, 0)",b.arc(a.clientX,a.clientY,r,0,2*Math.PI,!1),b.fillStyle="rgba(0,0,0,0.5)")})}
+function animloop(){animationFrame.request(animloop);for(var a=0;a<g.length;a++){var b=a%g.length,d=g[b],c=ct[b],e=ct2[b],b=canarr[b];0<ct.length&&0<ct2.length&&0<canarr.length&&0<g.length&&void 0!==c&&!0===d.rendered&&!0===d.loaded&&(e.fill(),c.clearRect(0,0,window.innerWidth,window.innerHeight),c.globalCompositeOperation="source-over",e.globalCompositeOperation="source-atop",e.drawImage(d.frames[d.currentFrame()].ctx.canvas,0,0,window.innerWidth,window.innerHeight),c.drawImage(b,0,0,window.innerWidth,
+window.innerHeight),c.globalCompositeOperation="source-atop")}};  
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-55648701-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!--<script type="text/javascript">
+    var ajaxlength = [];
+    var value = isNaN(value) ? 10 : value;
+    var animationFrame = new AnimationFrame();
+    var ct = [];
+    var ct2 = [];
+    var g = [];
+    var canarr = [];
+    var canarr2 = [];
+    var trueArr = [];
+    var pos = [];
+    var prevVelocity = null;
+
+    function extractToken(hash) {
+        var match = hash.match(/access_token=(\w+)/);
+        return !!match && match[1];
+    }
+    var token = extractToken(document.location.hash);
+    var clientId = "b144351ffb05838";
+
+    if (token) {authorization = "Bearer " + token;} else {authorization = "Client-ID " + clientId;}
+
+    $.ajax({
+        url         : "https://api.imgur.com/3/gallery/random/random/page=" + Math.floor(Math.random() * 50),
+        method      : "GET",
+        headers     : {Authorization: authorization, Accept: "application/json"},
+        crossDomain : true,
+        data        : {image: localStorage.dataBase64, type: "base64"},
+        beforeSend  : function () {$("#loading").css("display", "block");},
+        success     : function (result) {
+            $.each(result.data, function (idx, image) {
+                if ((result.data[idx].animated !== false) && (result.data[idx].is_album !== true)) {
+                    var newimage = GIF(image.link);
+                    newimage.render();
+                    g.push (newimage);
+                    $("#gifs").html(g.length);
+                    recursiveLoad(newimage);
+                }
+            });
+        }
+    });
+
+   function recursiveLoad(img) {
+       setTimeout(function () {
+           var colorA = "#" + Math.random().toString(16).slice(2, 8);
+           if (img.rendered === true) {
+               done(img, colorA);
+           } else {
+               recursiveLoad(img);
+           }
+       }, 1000);
+   }
+
+   function done(image, color) {
+       trueArr.push(image.src);
+       $("#loading").append('<p style="color:' + color + ';">' + trueArr.length + '</>');
+       if (g.length === trueArr.length) {
+           $("#loading").fadeOut(1E2);
+           $("#contain").fadeOut(1E2);
+           animloop();
+           mouseInit();
+       }
+   }
+   function calculateVelocities(pos) {
+       return pos.reduce(function (out, pos, index, posArr) {
+           if (index > 0) {
+               var prevIndex = index - 1;
+               var dx = pos.x - posArr[prevIndex].x;
+               var dy = pos.y - posArr[prevIndex].y;
+
+               out.push(Math.sqrt(dx * dx + dy * dy) / (posArr[prevIndex].t - pos.t));
+           }
+           return out;
+       }, []);
+   }
+
+   function calculateAccelerations(vels) {
+       return vels.reduce(function (out, vel, index, velsArr) {
+           if (index > 0) {
+               var prevIndex = index - 1;
+
+               out.push(velsArr[prevIndex] - vel);
+           }
+           return out;
+       }, []);
+   }
+
+   function average(arr) {
+       if (arr.length > 0) {
+           return arr.reduce(function (sum, val) {
+               return sum + val;
+           }, 0) / arr.length;
+       }
+       return 0;
+   }
+
+   function createCanvas(arrayOne, arrayTwo) {
+       var canvas = document.createElement('canvas');
+       canvas.width = window.innerWidth;
+       canvas.height = window.innerHeight;
+       document.body.appendChild(canvas);
+       var context = canvas.getContext('2d');
+       arrayOne.push(context);
+       if (arrayTwo) {
+           arrayTwo.push(canvas);
+       }
+   }
+
+  function mouseInit() {
+
+   window.addEventListener('mousedown', function (e) {
+       createCanvas(ct, canarr);
+       createCanvas(ct2);
+   });
+
+   window.addEventListener('mousemove', function (e) {
+
+       pos.unshift({
+           x: e.clientX,
+           y: e.clientY,
+           t: performance.now()
+       });
+
+       pos.length = Math.min(pos.length, 30);
+
+       var vels = calculateVelocities(pos);
+       var accels = calculateAccelerations(vels);
+       var vel = average(vels);
+       var accel = average(accels);
+
+       if (accel >= 0) {
+           //console.log('more');
+           r = value ++;
+       } else {
+         //console.log('less');
+           r = value --;
+       }
+
+       if (r > 100) {
+           r = value -= 100;
+       }
+       if (r < 5) {
+           r = value += 100;
+       }
+       //console.log(r);
+       var ctx2 = ct2[(Number(ct2.length) - 1)];
+       if ((Number(ct2.length) - 1) >= Number(g.length)) {
+           ctx2 = ct2[(Number(g.length) - 1)];
+       }
+       if (ctx2 !== undefined) {
+           ctx2.globalCompositeOperation = 'source-over';
+           ctx2.beginPath();
+           ctx2.shadowBlur = 20;
+           ctx2.shadowColor = 'rgb(0, 0, 0)';
+           ctx2.arc(e.clientX, e.clientY, r, 0, Math.PI * 2, false);
+           //ctx2.arc(e.pageX/2, e.pageY/2, r, 0, Math.PI * 2, false);
+           ctx2.fillStyle = "rgba(0,0,0,0.5)";
+       }
+   });
+
+   }
+/*
+   document.addEventListener('touchstart', function (e) {
+       createCanvas(ct, canarr);
+       createCanvas(ct2);
+   });
+
+   document.addEventListener('touchmove', function (e) {
+       pos.unshift({
+           x: e.clientX,
+           y: e.clientY,
+           t: performance.now()
+       });
+
+       pos.length = Math.min(pos.length, 30);
+
+       var vels = calculateVelocities(pos);
+       var accels = calculateAccelerations(vels);
+       var vel = average(vels);
+       var accel = average(accels);
+
+       if (accel >= 0) {
+           //console.log('more');
+           r = value ++;
+       } else {
+         //console.log('less');
+           r = value --;
+       }
+
+       if (r > 100) {
+           r = value -= 100;
+       }
+       if (r < 5) {
+           r = value += 100;
+       }
+       //console.log(r);
+       var ctx2 = ct2[(Number(ct2.length) - 1)];
+       if ((Number(ct2.length) - 1) >= Number(g.length)) {
+           ctx2 = ct2[(Number(g.length) - 1)];
+       }
+       if (ctx2 !== undefined) {
+           ctx2.globalCompositeOperation = 'source-over';
+           ctx2.beginPath();
+           ctx2.shadowBlur = 20;
+           ctx2.shadowColor = 'rgb(0, 0, 0)';
+           ctx2.arc(e.clientX, e.clientY, r, 0, Math.PI * 2, false);
+           //ctx2.arc(e.pageX/2, e.pageY/2, r, 0, Math.PI * 2, false);
+           ctx2.fill();
+           ctx2.fillStyle = "rgba(255,255,255,0.5)";
+       }
+   });
+*/
+   function animloop() {
+       animationFrame.request(animloop);
+       for (var i = 0; i < g.length; i++) {
+           var gifNum = i % g.length;
+           var gif = g[gifNum];
+           var ctx = ct[gifNum];
+           var ctx2 = ct2[gifNum];
+           var can = canarr[gifNum];
+           if (ct.length > 0 && ct2.length > 0 && canarr.length > 0 && g.length > 0 && ctx !== undefined) {
+             if (gif.rendered === true && gif.loaded === true) {
+                   ctx2.fill();
+                   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                   ctx.globalCompositeOperation = 'source-over';
+                   ctx2.globalCompositeOperation = 'source-atop';
+                   ctx2.drawImage(gif.frames[gif.currentFrame()].ctx.canvas, 0, 0, window.innerWidth, window.innerHeight);
+                   ctx.drawImage(can, 0, 0, window.innerWidth, window.innerHeight);
+                   ctx.globalCompositeOperation = 'source-atop';
+              }
+           }
+       }
+   } 
+</script>-->
+</body>
+</html>

@@ -1,0 +1,1081 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    border: 0;
+    overflow: hidden;
+    /*  Disable scrollbars */
+    display: block;
+    /* No floating content on sides */
+}
+#full-nav, #phone-nav, #push-nav-left {
+    z-index:9999;
+}
+#videoWrapper img {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+#videoWrapper iframe {
+    position: relative;
+    top: 0;
+    left: 19px;
+    width: 92.79%;
+    height: 100%;
+    -webkit-transition: all 1ms linear;
+    -moz-transition: all 1ms linear;
+    -o-transition: all 1ms linear;
+    transition: all 1ms linear;
+}
+#videoWrapper {
+    position: absolute;
+    top: 0;
+    bottom: 172px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 50%;
+    height: 50%;
+    z-index: 8;
+    -webkit-transition: all 1ms linear;
+    -moz-transition: all 1ms linear;
+    -o-transition: all 1ms linear;
+    transition: all 1ms linear;
+}
+#myCanvas {
+    z-index: 1;
+    display: block;
+    position: absolute;
+    bottom: 33px;
+    left: 0;
+    right: 0;
+}
+#myCanvas2 {
+    z-index: -1;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#center {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+#hands {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+#left {
+    z-index: 8;
+    height: 50%;
+    width: 50%;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 66px;
+    right: auto;
+}
+#right {
+    z-index: 8;
+    height: 50%;
+    width: 50%;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: auto;
+    bottom: 66px;
+    right: 0;
+}
+#hands img {
+    width: 100%;
+}
+#rating-icon {
+    margin: 3px;
+    position: absolute;
+    left: 0;
+    width: 21px;
+    z-index: 3;
+}
+#txtImages {
+    position: relative;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 50%;
+    z-index: 8;
+    padding-top: 4%;
+}
+#blogo {
+    width: 50%;
+    margin: 0 auto;
+    margin-bottom: 2%;
+}
+#tune {
+    width: 74%;
+    margin: 0 auto;
+}
+#tune_two {
+    width: 39%;
+    margin: 0 auto;
+}
+#aslogo {
+    bottom: 0;
+    width: 22%;
+    margin: auto;
+    padding: 2% 0;
+}
+footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    width: 100%;
+    opacity: 0.5;
+}
+#loading {
+    z-index: -2;
+    height: 50%;
+    width: 50%;
+    max-width: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    max-height: 16px;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+ @media only screen and (min-device-width : 540px) and (max-device-width : 960px) and (webkit-min-device-pixel-ratio: 2) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 126px !important;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 8px !important;
+        width: 96% !important;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+}
+/* iPads (landscape) ----------- */
+ @media only screen and (webkit-min-device-pixel-ratio: 1), (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 149px !important;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 8px !important;
+        width: 96% !important;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+}
+/* iPads (portrait) ----------- */
+ @media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 150px !important;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 8px;
+        width: 96%;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2) and (min-width: 700px), only screen and (min--moz-device-pixel-ratio: 2) and (min-width: 700px), only screen and (-o-min-device-pixel-ratio: 2/1) and (min-width: 700px), only screen and (min-device-pixel-ratio: 2) and (min-width: 700px), only screen and (min-resolution: 192dpi) and (min-width: 700px), only screen and (min-resolution: 2dppx) and (min-width: 700px) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 192px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 8px;
+        width: 96%;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2) and (min-width: 1300px), only screen and (min--moz-device-pixel-ratio: 2) and (min-width: 1300px), only screen and (-o-min-device-pixel-ratio: 2/1) and (min-width: 1300px), only screen and (min-device-pixel-ratio: 2) and (min-width: 1300px), only screen and (min-resolution: 192dpi) and (min-width: 1300px), only screen and (min-resolution: 2dppx) and (min-width: 1300px) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 270px !important;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 22px !important;
+        width: 93.75% !important;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+}
+/* Smartphones (portrait and landscape) ----------- */
+ @media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 34px !important;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 8px;
+        width: 96%;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 500ms linear;
+        -o-transition: all 500ms linear;
+        transition: all 500ms linear;
+    }
+    #left {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0 !important;
+        right: auto;
+    }
+    #right {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: auto;
+        bottom: 0 !important;
+        right: 0;
+    }
+    #myCanvas {
+        z-index: 1;
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+    }
+}
+
+ @media only screen and (min-device-width: 360px) and (max-device-width: 640px) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 46px !important;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 8px;
+        width: 96%;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 500ms linear;
+        -o-transition: all 500ms linear;
+        transition: all 500ms linear;
+    }
+    #left {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0 !important;
+        right: auto;
+    }
+    #right {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: auto;
+        bottom: 0 !important;
+        right: 0;
+    }
+    #myCanvas {
+        z-index: 1;
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+    }
+    footer{
+        display:none;
+    }
+}
+/* IPhone 5 landscape ----------- */
+ @media only screen and (min-device-width : 320px) and (max-device-width : 568px) and (orientation : landscape) {
+    footer {
+        display: none;
+    }
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 33px !important;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 0px !important;
+        width: 96% !important;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 500ms linear;
+        -o-transition: all 500ms linear;
+        transition: all 500ms linear;
+    }
+    #left {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0 !important;
+        right: auto;
+    }
+    #right {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: auto;
+        bottom: 0 !important;
+        right: 0;
+    }
+    #myCanvas {
+        z-index: 1;
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+    }
+}
+@media only screen and (max-width: 1224px) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 177px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 19px;
+        width: 93%;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+}
+@media only screen and (max-width: 768px) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 177px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 8px;
+        width: 96%;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+}
+@media only screen and (max-width: 480px) {
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 119px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 0px !important;
+        width: 96% !important;
+        height: 100%;
+        webkit-transition: all 1ms linear;
+        -moz-transition: all 500ms linear;
+        -o-transition: all 500ms linear;
+        transition: all 500ms linear;
+    }
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (-o-min-device-pixel-ratio: 13/10), only screen and (min-resolution: 120dpi) not screen and (min-device-width : 320px) and (max-device-width : 568px) and (orientation : landscape) {
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        border: 0;
+        overflow: hidden;
+        /*  Disable scrollbars */
+        display: block;
+        /* No floating content on sides */
+        ;
+    }
+    #videoWrapper img {
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 5px;
+        width: 95.79%;
+        height: 100%;
+        -webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 158px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+        -webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+    #myCanvas {
+        z-index: 1;
+        display: block;
+        position: absolute;
+        bottom: 30px;
+        left: 0;
+        right: 0;
+    }
+    #myCanvas2 {
+        z-index: -1;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    #center {
+        width: 50%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+    #hands {
+        width: 50%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+    #left {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 61px;
+        right: auto;
+    }
+    #right {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: auto;
+        bottom: 61px;
+        right: 0;
+    }
+    #hands img {
+        width: 100%;
+    }
+    #rating-icon {
+        margin: 3px;
+        position: absolute;
+        left: 0;
+        width: 21px;
+        z-index: 3;
+    }
+    #txtImages {
+        position: relative;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 50%;
+        z-index: 8;
+        padding-top: 4%;
+    }
+    #blogo {
+        width: 50%;
+        margin: 0 auto;
+        margin-bottom: 2%;
+    }
+    #tune {
+        width: 74%;
+        margin: 0 auto;
+    }
+    #tune_two {
+    width: 39%;
+    margin: 0 auto;
+    }
+    #aslogo {
+        bottom: 0;
+        width: 22%;
+        margin: auto;
+        padding: 2% 0;
+    }
+    footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        width: 100%;
+        opacity: 0.5;
+    }
+    #loading {
+        z-index: -2;
+        height: 50%;
+        width: 50%;
+        max-width: 16px;
+        min-width: 16px;
+        min-height: 16px;
+        max-height: 16px;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    }
+}
+/* Large screens ----------- */
+ @media only screen and (min-width : 1824px) {
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        border: 0;
+        overflow: hidden;
+        /*  Disable scrollbars */
+        display: block;
+        /* No floating content on sides */
+        ;
+    }
+    #videoWrapper img {
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #videoWrapper iframe {
+        position: relative;
+        top: 0;
+        left: 26px;
+        width: 91.79%;
+        height: 100%;
+        -webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+    #videoWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 297px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 50%;
+        height: 50%;
+        z-index: 8;
+        -webkit-transition: all 1ms linear;
+        -moz-transition: all 1ms linear;
+        -o-transition: all 1ms linear;
+        transition: all 1ms linear;
+    }
+    #myCanvas {
+        z-index: 1;
+        display: block;
+        position: absolute;
+        bottom: 72px;
+        left: 0;
+        right: 0;
+    }
+    #myCanvas2 {
+        z-index: -1;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    #center {
+        width: 50%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+    #hands {
+        width: 50%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+    #left {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 148px;
+        right: auto;
+    }
+    #right {
+        z-index: 8;
+        height: 50%;
+        width: 50%;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: auto;
+        bottom: 148px;
+        right: 0;
+    }
+    #hands img {
+        width: 100%;
+    }
+    #rating-icon {
+        margin: 3px;
+        position: absolute;
+        left: 0;
+        width: 21px;
+        z-index: 3;
+    }
+    #txtImages {
+        position: relative;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        height: 50%;
+        z-index: 8;
+        padding-top: 4%;
+    }
+    #blogo {
+        width: 50%;
+        margin: 0 auto;
+        margin-bottom: 2%;
+    }
+    #tune {
+        width: 74%;
+        margin: 0 auto;
+    }
+    #tune_two {
+    width: 39%;
+    margin: 0 auto;
+    }
+    #aslogo {
+        bottom: 0;
+        width: 22%;
+        margin: auto;
+        padding: 2% 0;
+    }
+    footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        width: 100%;
+        opacity: 0.5;
+    }
+    #loading {
+        z-index: -2;
+        height: 50%;
+        width: 50%;
+        max-width: 16px;
+        min-width: 16px;
+        min-height: 16px;
+        max-height: 16px;
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    }
+}
+footer {
+    height: auto;
+}
+/****BEGIN FOOTER****/
+ #footer-linklist {
+    width: 1004px;
+    margin: 26px auto 50px;
+}
+#square-foot-contain {
+    width: 426px;
+    float: left;
+}
+#shows-foot-col {
+    width: 186px;
+}
+.footsquare-holder {
+    float: left;
+    margin-right: 30px;
+}
+ul.foot-nav {
+    float: right;
+    width: 94px;
+}
+ul.foot-nav li {
+    margin-bottom: 13px;
+}
+.foot-nav a, .foot-nav a:link, .foot-nav a:visited {
+    font-family: arial;
+    font-weight: bold;
+    color: #242424;
+    text-decoration: none;
+    font-size: 11px;
+}
+.link-col {
+    float: left;
+}
+.link-col h4 {
+    font-family: Helvetica, arial;
+    color: #242424;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin: 3px 0px 19px 19px;
+}
+ul.social {
+    border-left: 1px solid #babab5;
+}
+ul.footer-list {
+    padding: 0px;
+    margin: 0px;
+    height: 210px;
+    border-left: 1px solid #babab5;
+}
+.darkbg ul.footer-list {
+    border-left: 1px solid #666666;
+}
+ul.footer-list li {
+    line-height: 0.8em;
+    margin: 0px 0px 6px 20px;
+    position: relative;
+    width: 169px;
+    height: 20px;
+}
+ul.social li {
+    margin-bottom: 12px !important;
+    width: 140px !important;
+}
+ul.gamelinks li {
+    width: 186px !important;
+}
+ul.social li:hover .social-img img {
+    left: -50px;
+}
+ul.footer-list li a, ul.footer-list li a:link, ul.footer-list li a:visited {
+    font-family: Helvetica, arial;
+    font-size: 10px;
+    color: #242424;
+    font-weight: bold;
+    display: block;
+    position: absolute;
+    width: 163px;
+    height: 20px;
+    left: 0px;
+    top: -5px;
+}
+.darkbg .foot-nav a, .darkbg .foot-nav a:link, .darkbg .foot-nav a:visited, .darkbg .link-col h4, .darkbg ul.footer-list li a, .darkbg ul.footer-list li a:link, .darkbg ul.footer-list li a:visited {
+    color: #ffffff;
+}
+ul.footer-list li a:hover, ul.footer-list li a:active, ul.social li:hover a, .darkbg ul.footer-list li a:hover, .darkbg ul.footer-list li a:active, .darkbg ul.social li:hover a {
+    color: #ff4c26;
+}
+.foot-nav a:hover, .foot-nav a:active, .darkbg .foot-nav a:hover, .darkbg .foot-nav a:active {
+    color: #ff4c26;
+}
+.social a {
+    position: relative !important;
+    top: -1px !important;
+}
+a.soc-count {
+    width: 68px !important;
+    display: inline-block !important;
+    *display: inline;
+    zoom: 1;
+}
+.global-footer {
+    background: url('https://s.cdn.turner.com/adultswim/big/img/home/bg-footer-tile.png') 0 0 repeat;
+    padding-top: 40px;
+}
+.social-img {
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    *display: inline;
+    zoom: 1;
+    margin: 0px 8px -3px 0px;
+}
+.social-img img {
+    display: block;
+    position: absolute;
+    left: -26px;
+}
+.darkbg .social-img img {
+    left: -2px;
+}
+.social-img:hover img {
+    left: -50px;
+}
+#fb-link {
+    height: 16px;
+    width: 16px;
+}
+#fb-link img {
+    top: 0px;
+}
+#tw-link {
+    height: 14px;
+    width: 17px;
+}
+#tw-link img {
+    top: -30px;
+}
+#insta-link {
+    height: 15px;
+    width: 16px;
+}
+#insta-link img {
+    top: -58px;
+}
+#yt-link {
+    height: 20px;
+    width: 16px;
+}
+#yt-link img {
+    top: -85px;
+}
+#legal-footer {
+    text-align: center;
+    font: 7px/6px Helvetica, Arial, sans-serif;
+}
+#legal-links {
+    /* margin-bottom: 3px; */
+    ;
+}
+#legal-links li {
+    display: inline;
+}
+#legal-links li a {
+    color: #696969 !important;
+    text-decoration: none !important;
+}
+#legal-links .legal-divider {
+    color: #aaaaaa;
+    margin: 0 0 0 5px;
+}
+#small-logo {
+    padding-left: 5px;
+    vertical-align: middle;
+    display: inline;
+    font-size: 0;
+}
+#tbs-info {
+    margin: 0px;
+    color: #696969;
+    line-height: 175%;
+    filter: alpha(opacity=85);
+    -moz-opacity: .85;
+    opacity: .85;
+}
+#tbs-info a {
+    color: #696969 !important;
+    text-decoration: none !important;
+}
+#adultswim-info {
+    margin: 0px;
+    color: #696969;
+    line-height: 14px;
+    padding-bottom: 0px !important;
+    filter: alpha(opacity=85);
+    -moz-opacity: .85;
+    opacity: .85;
+}
+#adultswim-info img {
+    vertical-align: middle;
+    display: inline;
+}
+/* CUSTOM CSS FOR DARK/LIGHT LEGAL */
+ .light-page #legal-links li a {
+    color: #b5b6a8 !important;
+}
+.ad-choice-area a {
+    font-weight: bold;
+}
