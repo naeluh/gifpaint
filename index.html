@@ -17,7 +17,8 @@
       </div>
       <div class="group" id="brushes"></div>
       <div class="group">
-        <input type="color" id="color" value="#ff7a4a" title="color" />
+        <input type="color" id="color" value="#ff7a4a" title="paint color" />
+        <input type="color" id="bg" value="#111213" title="canvas color" />
         <label>size <input type="range" id="size" min="4" max="120" value="28" /></label>
       </div>
       <div class="group">
@@ -56,10 +57,25 @@
     <main id="stage">
       <div id="canvas-wrap"><canvas id="canvas"></canvas></div>
       <div id="props" hidden>
-        <label>scale <input type="range" id="p-scale" min="0.05" max="4" step="0.01" /></label>
+        <label>scale <input type="range" id="p-scale" min="0.05" max="8" step="0.01" /></label>
         <label>rotate <input type="range" id="p-rot" min="-180" max="180" step="1" /></label>
         <label>opacity <input type="range" id="p-op" min="0.05" max="1" step="0.01" /></label>
         <button id="p-delete">delete</button>
+      </div>
+      <div id="drip-params" hidden>
+        <div id="drip-tools" class="group">
+          <button data-tool="stick" class="active" title="stick / hardened brush">stick</button>
+          <button data-tool="brush" title="loaded brush — flick for a spatter cloud">brush</button>
+          <button data-tool="baster" title="basting syringe — pressurized jet">baster</button>
+          <button data-tool="can" title="paint can — wide pour">can</button>
+        </div>
+        <label>viscosity <input type="range" id="d-mu" min="0" max="1000" step="1" /><output></output></label>
+        <label>height <input type="range" id="d-h" min="2" max="100" step="1" /><output></output></label>
+        <label>stream <input type="range" id="d-a" min="8" max="200" step="1" /><output></output></label>
+        <label>fall speed <input type="range" id="d-g" min="0.1" max="3" step="0.1" /><output></output></label>
+        <label>pour speed <input type="range" id="d-v0" min="0.05" max="4" step="0.05" /><output></output></label>
+        <label>wetting <input type="range" id="d-th" min="5" max="90" step="1" /><output></output></label>
+        <span class="readout">lands at <output id="drip-v"></output></span>
       </div>
       <div id="hint">pick a gif from the library, then paint to reveal it · drop images or videos anywhere to upload</div>
     </main>

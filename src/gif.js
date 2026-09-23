@@ -2,7 +2,10 @@
 // frameAt(now) returns the canvas for the current loop position.
 import { parseGIF, decompressFrames } from 'gifuct-js';
 
-const MAX_DIM = 480; // ponytail: frames stored as canvases, cap size to bound memory
+// frames are stored as canvases; native size until the pixel budget binds
+// (150 frames × 1200² would be 860MB — the budget keeps a decode under ~160MB)
+const MAX_DIM = 1200;
+const MAX_PIXELS = 40e6; // total frame pixels per gif
 const MAX_FRAMES = 150;
 
 export async function loadGif(url) {
@@ -16,7 +19,7 @@ export async function loadGif(url) {
 
   const W = gif.lsd.width;
   const H = gif.lsd.height;
-  const k = Math.min(1, MAX_DIM / Math.max(W, H));
+  const k = Math.min(1, MAX_DIM / Math.max(W, H), Math.sqrt(MAX_PIXELS / (W * H * raw.length)));
   const w = Math.max(1, Math.round(W * k));
   const h = Math.max(1, Math.round(H * k));
 

@@ -409,11 +409,13 @@ label {
   cursor: crosshair;
 }
 
-#props[hidden] {
+#props[hidden],
+#drip-params[hidden] {
   display: none;
 }
 
-#props {
+#props,
+#drip-params {
   position: absolute;
   bottom: 28px;
   left: 50%;
@@ -428,6 +430,41 @@ label {
   padding: 8px 16px;
   box-shadow: var(--rim), var(--bloom);
   z-index: 2;
+}
+
+/* drip physics pill — wraps on narrow stages, so a card radius, not a pill */
+#drip-params {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
+  max-width: calc(100% - 32px);
+  border-radius: 16px;
+}
+
+#drip-params output,
+#drip-params .readout {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--text-warm);
+}
+
+#drip-params output {
+  min-width: 5.5ch;
+}
+
+#drip-tools {
+  gap: 2px;
+  padding-right: 10px;
+}
+
+#drip-tools button {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+#drip-params .readout {
+  color: var(--text-2);
 }
 
 #hint {

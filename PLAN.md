@@ -22,7 +22,8 @@ GIF, WebM video).
   `frameAt(now)` so every stamp/stroke animates live.
 - Undo/redo: snapshot `items` (structuredClone) per committed action, capped
   stack. Covers add/remove/move/paint/clear — the "roll back" ask.
-- Autosave scene JSON to localStorage + Save/Load `.json` project files.
+- Autosave scene JSON to IndexedDB (localStorage fallback, src/store.js) + Save/Load
+  `.json` project files.
 
 ## Brushes (src/brushes.js)
 
@@ -32,7 +33,9 @@ GIF, WebM video).
 4. **glow** — neon shadowBlur line.
 5. **rainbow** — hue cycles along path.
 6. **spray** — seeded particle dots.
-7. **eraser** — destination-out.
+7. **drip** — Pollock pour physics sim (src/drip.js): thread, coiling, breakup, splats,
+   thin-film pooling; six live params; deposits recorded as replayable ops on the item.
+8. **eraser** — destination-out.
 
 ## Library panel (src/library.js)
 
@@ -43,7 +46,8 @@ GIF, WebM video).
 ## Editing
 
 - Tools: paint, select/move (drag), stamp.
-- Selected item: props bar (scale / rotation / opacity sliders, delete),
+- Selected item: props bar (scale / rotation / opacity sliders, delete), corner
+  handles drag-resize (uniform),
   layers panel (right): thumbnails, reorder up/down, delete, click-select.
 - Keys: ⌘Z / ⇧⌘Z, Delete, B/V/S tools.
 
@@ -57,8 +61,9 @@ GIF, WebM video).
 ## Files
 
 `index.html`, `src/style.css`, `src/main.js` (wiring/tools/UI),
-`src/scene.js`, `src/brushes.js`, `src/gif.js` (decoder/player),
-`src/library.js`, `src/export.js`, `test/scene.test.mjs` (model+undo check).
+`src/scene.js`, `src/brushes.js`, `src/gif.js` (decoder/player), `src/drip.js`
+(pour physics), `src/store.js` (autosave), `src/library.js`, `src/export.js`,
+`test/scene.test.mjs`, `test/drip.test.mjs`, `test/store.test.mjs`.
 
 ## Design (Kuzic-borrowed, see ../Kuzic/DESIGN.md)
 
@@ -71,4 +76,5 @@ an image anywhere."), radius ladder 6/16/99, library cells are real buttons
 
 ## Verify
 
-`node test/scene.test.mjs`, `bun run build`, `bun run dev` manual drive.
+`bun run test`, `bun run build`, `bun run dev` + `/?selftest=drip`. Deploy: merge to
+`main` → Vercel Git integration (project `gifpaint`, team `zakros`).

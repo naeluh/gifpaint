@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {
   createScene, addItem, removeItem, moveItem, clearScene, undo, redo,
-  makeImageItem, makeStrokeItem, hitTest, serialize, beginCommit, commit
+  makeImageItem, makeStrokeItem, hitTest, handleAt, serialize, beginCommit, commit
 } from '../src/scene.js';
 
 const scene = createScene();
@@ -28,6 +28,22 @@ assert.equal(hitTest(scene, sources, 500, 500), null, 'miss');
 const liveImg = scene.items.find((i) => i.id === img.id);
 liveImg.rotation = Math.PI / 4;
 assert.equal(hitTest(scene, sources, 99, 11), null, 'rotated corner miss');
+liveImg.rotation = 0;
+
+// resize handles: corner hit at rotation 0 and π/4, centre miss
+const s1 = sources.get('s1');
+assert.equal(handleAt(liveImg, s1, 50 + 50, 50 + 40), true, 'handle at bottom-right corner');
+assert.equal(handleAt(liveImg, s1, 50 - 50, 50 - 40), true, 'handle at top-left corner');
+assert.equal(handleAt(liveImg, s1, 50, 50), false, 'centre is not a handle');
+assert.equal(handleAt(liveImg, s1, 50 + 50, 50), false, 'edge midpoint is not a handle');
+liveImg.rotation = Math.PI / 4;
+{
+  const c = Math.cos(Math.PI / 4), sn = Math.sin(Math.PI / 4);
+  const cx = 50 + 50 * c - 40 * sn; // rotated bottom-right corner
+  const cy = 50 + 50 * sn + 40 * c;
+  assert.equal(handleAt(liveImg, s1, cx, cy), true, 'rotated corner handle');
+  assert.equal(handleAt(liveImg, s1, 100, 90), false, 'unrotated corner is no longer a handle');
+}
 liveImg.rotation = 0;
 
 // reorder

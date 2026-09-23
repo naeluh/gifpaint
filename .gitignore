@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# vercel project link + vite cache
+.vercel
+.vite
+.env*
