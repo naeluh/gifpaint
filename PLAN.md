@@ -63,7 +63,8 @@ GIF, WebM video).
 `index.html`, `src/style.css`, `src/main.js` (wiring/tools/UI),
 `src/scene.js`, `src/brushes.js`, `src/gif.js` (decoder/player), `src/drip.js`
 (pour physics), `src/store.js` (autosave), `src/library.js`, `src/export.js`,
-`test/scene.test.mjs`, `test/drip.test.mjs`, `test/store.test.mjs`.
+`test/scene.test.mjs`, `test/drip.test.mjs`, `test/store.test.mjs`, `test/api.test.mjs`;
+`api/` (auth, projects, upload + `_lib/`), `src/cloud.js`, `db/*.sql`.
 
 ## Design (Kuzic-borrowed, see ../Kuzic/DESIGN.md)
 
@@ -73,6 +74,14 @@ skeleton cells while GIPHY loads (no spinners), spinning-plus create
 affordance on cell hover, warm one-line empty states ("No uploads yet — drop
 an image anywhere."), radius ladder 6/16/99, library cells are real buttons
 (`aria-pressed`), `prefers-reduced-motion` kills shimmer + plus spin.
+
+## Cloud (api/, src/cloud.js)
+
+Vercel functions (web-standard `GET/POST/PUT/DELETE(request)` handlers) beside the static
+build: Better Auth on a `pg` Pool over Neon's pooled URL, `projects` + `uploads` tables,
+presigned B2 PUTs via `aws4fetch`. Sign-in for every write; share links and gallery are
+anonymous reads. Details: README "Accounts, cloud save…", `.claude/skills/cloud-backend`.
+Deferred: B2 cleanup of soft-deleted/orphaned uploads, account deletion, email verification.
 
 ## Verify
 

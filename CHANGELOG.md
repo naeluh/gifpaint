@@ -3,6 +3,17 @@
 ## [Unreleased]
 
 ### Added
+- **Accounts** — Better Auth (email + password, Google, GitHub) self-hosted in Vercel functions
+  (`api/auth.js`, rewritten from `/api/auth/*` by `vercel.json`); DB-backed rate limiting.
+- **Cloud save / share links / gallery** — Neon Postgres `projects` table with `private` /
+  `unlisted` / `public` visibility; `/?p=<id>` opens a shared project (before the local
+  autosave); **browse** sheet lists your projects and the public gallery. `api/projects.js`.
+- **Uploads to Backblaze B2** — uploaded images/videos are pushed through presigned PUTs
+  (`api/upload.js`, type + size signed, exact MIME allowlist, 100 MB each, 1 GB/user/day) and
+  swapped for permanent public URLs before a cloud save; PNG thumbnails likewise.
+- Neon project link (`.neon`, `neon.ts`), schema in `db/auth.sql` + `db/schema.sql`.
+- Tests: `test/api.test.mjs` (asset-URL allowlist, body/upload validation, auth path restore,
+  client upload swap), wired into `bun run test`.
 - **Drip brush** — Pollock pour physics (falling thread, sewing-machine coiling, Rayleigh–Plateau
   breakup, Weber/Reynolds splats) recorded as replayable draw ops on a normal stroke item, so undo,
   move, layers, opacity, export and project save all work. Six live sliders: viscosity, stick height,
@@ -35,5 +46,15 @@
   `.vercelignore`, `bun run deploy`.
 
 ### Changed
+- **Cloud UI redone after Kuzic + oss-design-prototype** — no native `prompt`/`confirm`: name,
+  share, delete-confirm and sign-in are native `<dialog>` sheets with one chrome (bottom sheet on
+  phones, reduced-motion honoured); share sheet with *who can open it* replaces the gallery
+  checkbox; copy confirms on the button (clipboard, then an in-modal textarea fallback); avatar
+  chip + popover menu for sign out; per-card popover menus with optimistic delete + rollback;
+  lock marker on private cards; skeleton grid; cloud cluster pinned right of the top bar.
+  Server/client error copy rewritten ("couldn't …", no em dashes).
+- Global `[hidden] { display: none !important }` — author `display` rules were beating it.
+- Autosave is still local-only, but the README no longer claims nothing leaves the browser: the
+  cloud buttons do.
 - GIF decode cap: fixed 480px → native up to 1200px within a 40M-pixel budget.
 - WebM export deselects first so selection chrome is not recorded.

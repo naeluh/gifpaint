@@ -1,15 +1,18 @@
 # gifpaint
 
 Paint and collage with images, animated GIFs and video in the browser, then save the
-result as a PNG, an animated GIF or a WebM video. Successor to yourimage.io (2014) and
-gifpaint.in. Vite + vanilla JS, canvas 2D, no framework.
+result as a PNG, an animated GIF or a WebM video — or sign in, save it to the cloud, share a
+link and post it to the gallery. Successor to yourimage.io (2014) and
+gifpaint.in. Vite + vanilla JS, canvas 2D, no framework; Vercel functions + Neon Postgres + Better Auth +
+Backblaze B2 for the cloud side.
 
 ## Run
 
 ```bash
 bun install
-bun run dev        # http://localhost:5173
-bun run test       # node: scene model, drip physics, autosave store
+bun run dev        # http://localhost:5173 — canvas only, no cloud API
+vercel dev         # canvas + /api (auth, cloud projects, uploads); needs .env.local, see below
+bun run test       # node: scene model, drip physics, autosave store, cloud API validators
 bun run build      # dist/
 ```
 
@@ -96,9 +99,72 @@ PNG snapshot; animated GIF (duration input, 15 fps, ≤640px wide); WebM via Med
 The scene autosaves 800 ms after every change to **IndexedDB** (`gifpaint` / `kv` /
 `project`), falling back to `localStorage` when IndexedDB is unavailable. IndexedDB has no
 5 MB cap, so uploaded images and videos (stored as data URLs) survive a reload. An
-autosave written by the older localStorage-only build is still read on first load. Nothing
-leaves the browser: no server, no account. To move work between machines use **save** /
-**load**.
+autosave written by the older localStorage-only build is still read on first load. Autosave
+and **save** / **load** (`.json` file) never touch the network; only the cloud buttons below do.
+
+## Accounts, cloud save, share links, gallery
+
+- **sign in** — email + password, or Google / GitHub (Better Auth, self-hosted in `api/`;
+  sessions are same-origin cookies). The sheet opens on *create an account*; the avatar chip
+  (top right) opens a menu with **sign out**. Viewing a shared link or the gallery needs no account.
+- **cloud save** — the first save asks for a name in a sheet; later saves update in place.
+  Uploaded images/videos are first pushed to the Backblaze B2 bucket through a presigned PUT
+  and swapped for their permanent URL, so each upload goes up once. A 320px PNG thumbnail
+  goes along (best-effort).
+- **share** — saves, makes a private project link-only, and opens the share sheet: *who can
+  open it* (only you / anyone with the link / anyone, and it's in the gallery) plus the link
+  with **copy link**, which confirms in place for 2 s. Opening someone else's project and
+  saving makes your own copy.
+- **browse** — *yours* (per-card menu: open, copy link, delete — delete asks first and the
+  card leaves at once, coming back if the server refuses) and the public *gallery*.
+
+The cloud UI follows the Kuzic and oss-design-prototype repos: native `<dialog>` sheets with one
+chrome (title + close, hairline footer, cancel left of the commit, bottom sheet on phones), no
+`prompt`/`confirm`, native `popover` menus, ember only on the commit, red only on destructive
+commits, skeletons while loading, one-line empty states with one action, errors that say
+"couldn't …" and what to do next. Browse, share, cloud save and the account chip stay pinned at
+the right of the top bar; the drawing tools scroll inside their own strip.
+
+Visibility: `private` (owner only; others get 404) · `unlisted` (link) · `public` (link +
+gallery). Deleting is a soft delete; the link stops working. Saved projects may only
+reference the B2 bucket, GIPHY media and picsum — anything else must be uploaded first.
+Uploads: PNG / JPEG / GIF / WebP / WebM / MP4 / MOV, ≤ 100 MB each, 1 GB per user per day.
+
+| route | does |
+|---|---|
+| `/api/auth/*` | Better Auth (rewritten to `api/auth.js` by `vercel.json`) |
+| `GET /api/projects?id=` · `?mine=1` · `?gallery=1&before=` | one project · your list · gallery page (48) |
+| `POST /api/projects` · `PUT ?id=` · `DELETE ?id=` | create · update (owner) · soft delete (owner) |
+| `POST /api/upload` | `{contentType, size}` → presigned B2 PUT URL + public URL |
+
+Database: Neon Postgres (project `paint`, branch `production`, linked via `.neon`). Schema:
+`db/auth.sql` (Better Auth, generated) + `db/schema.sql` (`projects`, `uploads`). Apply with
+`neon psql < db/auth.sql && neon psql < db/schema.sql`; regenerate the auth part with
+`bunx auth@latest generate --config api/_lib/auth.js --output db/auth.sql` after changing
+Better Auth plugins. `neon.ts` is the (empty) Neon config policy — DB only.
+
+### Environment
+
+| var | where | what |
+|---|---|---|
+| `DATABASE_URL` | prod + preview + `.env.local` | Neon pooled URL (`neon link` / `neon deploy` pull it locally) |
+| `BETTER_AUTH_SECRET` | prod + preview + `.env.local` | `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | prod | `https://gifpaint-zakros.vercel.app` (previews resolve their own host) |
+| `GOOGLE_CLIENT_ID` / `_SECRET` | prod (+ local) | optional; callback `https://<host>/api/auth/callback/google` |
+| `GITHUB_CLIENT_ID` / `_SECRET` | prod (+ local) | optional; callback `https://<host>/api/auth/callback/github` |
+| `B2_KEY_ID` / `B2_APP_KEY` | prod + preview | B2 application key scoped to the bucket |
+| `B2_BUCKET` / `B2_REGION` / `B2_ENDPOINT` | prod + preview | e.g. `gifpaint` / `us-west-004` / `https://s3.us-west-004.backblazeb2.com` |
+| `B2_PUBLIC_URL` | prod + preview | public file base, e.g. `https://s3.us-west-004.backblazeb2.com/gifpaint` |
+
+`vercel dev` does not read `.env.local` by itself here: run
+`set -a; source .env.local; set +a; vercel dev`. Without B2 vars `/api/upload` answers 503 and
+projects with uploads can't be cloud-saved (GIPHY/picsum-only projects still can).
+
+The B2 bucket must be **public** with CORS rules (web UI → bucket → CORS → custom):
+`s3_get`/`s3_head` from `*` (canvas export and GIF decode read assets cross-origin) and
+`s3_put` from the app origins (`https://gifpaint-zakros.vercel.app`, `http://localhost:3000`),
+allowed headers `content-type`. OAuth sign-in works only on hosts registered with the
+provider (production + localhost); preview URLs use email + password.
 
 ## Deploy
 
@@ -106,4 +172,7 @@ Production deploys from `main` through the Vercel Git integration (project `gifp
 team `zakros`, repo `naeluh/gifpaint`). Merge to `main` and Vercel builds `vite build` →
 `dist/`. Branch pushes get preview URLs. `bun run deploy` (`vercel --prod`) is the manual
 escape hatch; `.vercelignore` keeps the legacy `gifpaint/` and `yourimage/` trees out of
-CLI uploads.
+CLI uploads. `vercel deploy` (no `--prod`) makes a preview for checking API changes.
+Deployment Protection is on for `*.vercel.app` (anonymous visitors get a 302 to Vercel SSO),
+so share links and the gallery are not public until it is relaxed in project settings;
+`vercel curl <path> --deployment <url>` probes through it.

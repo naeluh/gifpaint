@@ -10,6 +10,10 @@ import { createLibrary } from './library.js';
 import { exportPNG, exportGIF, exportWebM } from './export.js';
 import { createDripSim, DRIP_DEFAULTS, DT, WIDTH_M, TOOLS, landingSpeed, scrapeSweep, sliderToMu, muToSlider } from './drip.js';
 import { saveProject, loadSavedProject, clearSaved } from './store.js';
+import {
+  currentUser, signIn, signUp, signInSocial, signOut, uploadDataSources, saveCloud, loadCloud,
+  setVisibility, deleteCloud, listMine, listGallery, shareUrl, projectIdFromUrl
+} from './cloud.js';
 
 // ── state ────────────────────────────────────────────────────────────────────
 const scene = createScene();
@@ -488,7 +492,10 @@ const projectFile = document.getElementById('project-file');
 document.getElementById('load-project').addEventListener('click', () => projectFile.click());
 projectFile.addEventListener('change', async () => {
   const file = projectFile.files[0];
-  if (file) loadProject(JSON.parse(await file.text()));
+  if (file) {
+    await loadProject(JSON.parse(await file.text()));
+    setCloud(null); // a file is not the cloud project the URL named
+  }
   projectFile.value = '';
 });
 
@@ -523,9 +530,488 @@ function scheduleAutosave() {
   autosaveTimer = setTimeout(() => saveProject(serialize(scene, sources)), 800);
 }
 
-// restore BEFORE anything below can touch scene.items (the selftest clears them)
-const restored = await loadSavedProject();
-if (restored?.items?.length) await loadProject(restored);
+// ── cloud: account, cloud save, share links, gallery (src/cloud.js) ───────────
+// Interaction grammar from Kuzic + oss-design-prototype: sheets not prompt/confirm,
+// copy confirms in place, per-card menus, destructive last, optimistic delete.
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+const accountBtn = $('account');
+const authDialog = $('auth-dialog');
+const saveDialog = $('save-dialog');
+const shareDialog = $('share-dialog');
+const confirmDialog = $('confirm-dialog');
+const browseDialog = $('browse-dialog');
+const accountMenu = $('account-menu');
+const cardMenu = $('card-menu');
+
+/** Cloud identity of the open project; id null = only local. */
+const cloud = { id: null, isOwner: false, visibility: 'private', title: '' };
+/** @type {import('./cloud.js').User | null} */
+let user = null;
+
+function setCloud(p) {
+  cloud.id = p?.id ?? null;
+  cloud.isOwner = !!p?.isOwner;
+  cloud.visibility = p?.visibility ?? 'private';
+  cloud.title = p?.title ?? '';
+  const url = new URL(location.href);
+  cloud.id ? url.searchParams.set('p', cloud.id) : url.searchParams.delete('p');
+  history.replaceState(null, '', url);
+}
+
+function setUser(u) {
+  user = u;
+  accountBtn.classList.toggle('avatar', !!u);
+  accountBtn.textContent = u ? (u.name || u.email).trim().charAt(0).toUpperCase() : 'sign in';
+  accountBtn.title = u ? u.email : 'sign in to save and share';
+  accountBtn.setAttribute('aria-label', u ? `account, ${u.email}` : 'sign in');
+  $('account-email').textContent = u?.email ?? '';
+  if (!u) cloud.isOwner = false;
+}
+
+// ── sheet chrome: open with focus only on fine pointers, X / backdrop close ──
+/**
+ * @param {HTMLDialogElement} dialog
+ * @param {HTMLElement} [focusEl] focused (and selected) on fine pointers; else the sheet itself
+ */
+function openSheet(dialog, focusEl) {
+  if (!dialog.open) dialog.showModal();
+  const target = focusEl && matchMedia('(pointer: fine)').matches ? focusEl : dialog.querySelector('.sheet-inner');
+  target.focus();
+  if (target === focusEl) focusEl.select?.();
+}
+for (const dialog of document.querySelectorAll('dialog.sheet')) {
+  dialog.querySelector('.sheet-inner').tabIndex = -1;
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog || e.target.closest('[data-close]')) dialog.close('cancel');
+  });
+}
+/** Resolve with the dialog's returnValue once it closes. @param {HTMLDialogElement} dialog */
+const whenClosed = (dialog) =>
+  new Promise((resolve) => dialog.addEventListener('close', () => resolve(dialog.returnValue), { once: true }));
+
+/**
+ * Promise confirm. Cancel left, commit right; destructive commits are red.
+ * @param {{title: string, body?: string, action: string, destructive?: boolean}} opts
+ * @returns {Promise<boolean>}
+ */
+async function confirmSheet({ title, body = '', action, destructive = true }) {
+  if (confirmDialog.open) confirmDialog.close('cancel'); // a second ask answers the first "no"
+  confirmDialog.returnValue = '';
+  $('confirm-title').textContent = title;
+  $('confirm-body').textContent = body;
+  $('confirm-body').hidden = !body;
+  const ok = $('confirm-ok');
+  ok.textContent = action;
+  ok.classList.toggle('danger', destructive);
+  ok.classList.toggle('active', !destructive);
+  openSheet(confirmDialog);
+  return (await whenClosed(confirmDialog)) === 'ok';
+}
+
+/** Name sheet (replaces prompt). @param {string} initial @returns {Promise<string|null>} */
+async function askName(initial) {
+  saveDialog.returnValue = '';
+  const input = $('save-name');
+  input.value = initial;
+  openSheet(saveDialog, input);
+  return (await whenClosed(saveDialog)) === 'ok' ? input.value.trim() || initial : null;
+}
+
+// ── account: sign-in sheet + avatar menu ──
+const authWaiters = [];
+let signingUp = true; // new visitors are the common case (Kuzic: sheet opens on sign-up)
+let authContext = '';
+function setAuthMode(up) {
+  signingUp = up;
+  $('auth-name-field').hidden = !up;
+  $('auth-title').textContent = authContext || (up ? 'join gifpaint' : 'welcome back');
+  $('auth-switch-hint').textContent = up ? 'have an account?' : 'new here?';
+  $('auth-mode').textContent = up ? 'sign in' : 'create an account';
+  $('auth-password').autocomplete = up ? 'new-password' : 'current-password';
+  showAuthError('');
+}
+function showAuthError(message) {
+  const box = $('auth-error');
+  box.hidden = !message;
+  box.textContent = message;
+  box.classList.remove('shake');
+  if (message) {
+    void box.offsetWidth; // restart the shake for every new error
+    box.classList.add('shake');
+  }
+}
+/** Friendlier words for Better Auth's messages. @param {Error} err */
+function authMessage(err) {
+  const m = err.message ?? '';
+  if (/provider not found/i.test(m)) return "that sign-in isn't set up yet. use email for now";
+  if (/invalid email or password/i.test(m)) return "email or password doesn't match. try again or create an account";
+  if (/already exists/i.test(m)) return 'that email already has an account. sign in instead';
+  if (/password (is )?too short/i.test(m)) return 'use at least 8 characters for the password';
+  if (/fetch|network|unavailable/i.test(m)) return "couldn't reach the server. check your connection and try again";
+  return m || 'something went wrong. try again';
+}
+/**
+ * Signed-in user, opening the sign-in sheet if needed.
+ * @param {string} [context] sheet title, e.g. "sign in to save"
+ * @returns {Promise<import('./cloud.js').User|null>}
+ */
+function requireUser(context = '') {
+  if (user) return Promise.resolve(user);
+  return new Promise((resolve) => {
+    authWaiters.push(resolve);
+    authContext = context;
+    setAuthMode(signingUp);
+    openSheet(authDialog, signingUp ? $('auth-name') : $('auth-email'));
+  });
+}
+authDialog.addEventListener('close', () => {
+  for (const resolve of authWaiters.splice(0)) resolve(user);
+});
+$('auth-mode').addEventListener('click', () => {
+  setAuthMode(!signingUp);
+  if (matchMedia('(pointer: fine)').matches) (signingUp ? $('auth-name') : $('auth-email')).focus();
+});
+$('auth-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = $('auth-email').value.trim();
+  const password = $('auth-password').value;
+  if (!email || !password) return showAuthError('enter your email and a password');
+  if (signingUp && password.length < 8) return showAuthError('use at least 8 characters for the password');
+  const btn = $('auth-submit');
+  btn.disabled = true;
+  btn.textContent = 'one moment…';
+  showAuthError('');
+  try {
+    if (signingUp) await signUp($('auth-name').value.trim() || email.split('@')[0], email, password);
+    else await signIn(email, password);
+    setUser(await currentUser());
+    authDialog.close();
+  } catch (err) {
+    showAuthError(authMessage(err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'continue';
+  }
+});
+for (const b of authDialog.querySelectorAll('[data-provider]')) {
+  // redirects away and back; the 800 ms autosave keeps the canvas
+  b.addEventListener('click', () => signInSocial(b.dataset.provider).catch((err) => showAuthError(authMessage(err))));
+}
+
+/** Pin a popover menu under its trigger, right-aligned. @param {HTMLElement} menu @param {HTMLElement} anchor */
+function openMenu(menu, anchor) {
+  const r = anchor.getBoundingClientRect();
+  menu.style.top = `${r.bottom + 6}px`;
+  menu.style.right = `${Math.max(8, innerWidth - r.right)}px`;
+  menu.showPopover();
+}
+accountBtn.addEventListener('click', () => {
+  if (!user) return requireUser();
+  accountMenu.matches(':popover-open') ? accountMenu.hidePopover() : openMenu(accountMenu, accountBtn);
+});
+$('account-signout').addEventListener('click', async () => {
+  accountMenu.hidePopover();
+  await signOut().catch(() => {});
+  setUser(null);
+  setStatus('signed out');
+});
+
+// ── cloud save + share ──
+let cloudBusy = false;
+/**
+ * Save the canvas to the signed-in account: upload data-URL assets to B2,
+ * then create (first save, or someone else's project = your copy) or update.
+ * @param {'private'|'unlisted'|'public'} [visibility]
+ */
+async function cloudSave(visibility) {
+  if (cloudBusy || !(await requireUser('sign in to save'))) return null;
+  const creating = !(cloud.id && cloud.isOwner);
+  const title = creating ? await askName(cloud.title || 'untitled') : cloud.title;
+  if (title === null) return null;
+  cloudBusy = true;
+  try {
+    selectItem(null); // keep selection chrome out of the thumbnail
+    setStatus('uploading…');
+    if (await uploadDataSources(sources)) scheduleAutosave(); // autosave now keeps the small urls
+    setStatus('saving…');
+    const saved = await saveCloud({
+      id: creating ? null : cloud.id,
+      title,
+      data: serialize(scene, sources),
+      canvas,
+      visibility: visibility ?? (creating ? 'private' : undefined)
+    });
+    setCloud({ ...saved, title, isOwner: true });
+    setStatus('saved to your account');
+    return saved;
+  } catch (err) {
+    if (err.status === 401) setUser(null);
+    setStatus(`couldn't save. ${err.message}`);
+    return null;
+  } finally {
+    cloudBusy = false;
+  }
+}
+$('cloud-save').addEventListener('click', () => cloudSave());
+
+/**
+ * Copy text; clipboard API first, hidden-textarea fallback (Kuzic copyTextRobust).
+ * @param {string} text
+ * @returns {Promise<boolean>}
+ */
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const ta = Object.assign(el('textarea'), { value: text, readOnly: true });
+    ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+    // inside the open modal: everything outside a modal <dialog> is inert and can't be selected
+    (document.querySelector('dialog[open]') ?? document.body).append(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  }
+}
+let copyTimer = null;
+/** Swap a copy button to "link copied" for 2 s; on failure select the link. */
+async function copyLink(button, url, field) {
+  if (await copyText(url)) {
+    clearTimeout(copyTimer);
+    button.classList.add('copied');
+    button.textContent = 'link copied';
+    copyTimer = setTimeout(() => {
+      button.classList.remove('copied');
+      button.textContent = 'copy link';
+    }, 2000);
+  } else {
+    field?.select();
+    setStatus("couldn't copy the link. it's selected, copy it from there");
+  }
+}
+
+const VISIBILITY_WORDS = {
+  private: 'only you can open it now',
+  unlisted: 'anyone with the link can open it',
+  public: "it's in the gallery"
+};
+function syncShareSheet() {
+  for (const r of shareDialog.querySelectorAll('input[name=visibility]')) r.checked = r.value === cloud.visibility;
+  $('share-link').value = shareUrl(cloud.id);
+}
+$('cloud-share').addEventListener('click', async () => {
+  // sharing means "someone else can open it": a private project becomes link-only
+  const saved = await cloudSave(cloud.visibility === 'private' || !cloud.isOwner ? 'unlisted' : undefined);
+  if (!saved) return;
+  syncShareSheet();
+  openSheet(shareDialog, $('share-copy'));
+});
+$('share-access').addEventListener('change', async (e) => {
+  const want = e.target.value;
+  const before = cloud.visibility;
+  try {
+    cloud.visibility = (await setVisibility(cloud.id, want)).visibility;
+    setStatus(VISIBILITY_WORDS[cloud.visibility]);
+  } catch (err) {
+    cloud.visibility = before;
+    syncShareSheet();
+    setStatus(`couldn't change who can open it. ${err.message}`);
+  }
+});
+$('share-copy').addEventListener('click', (e) => copyLink(e.currentTarget, $('share-link').value, $('share-link')));
+
+// ── browse sheet: your projects / public gallery ──
+const browse = { tab: 'mine', next: null, items: new Map() };
+const LOCK_SVG =
+  '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
+const KEBAB_SVG =
+  '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="8" r="1.3" fill="currentColor"/><circle cx="8" cy="8" r="1.3" fill="currentColor"/><circle cx="12.5" cy="8" r="1.3" fill="currentColor"/></svg>';
+const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+/** "3 days ago" style date. @param {string} iso */
+function ago(iso) {
+  const s = (new Date(iso).getTime() - Date.now()) / 1000;
+  for (const [unit, secs] of [['year', 31536000], ['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['minute', 60]]) {
+    if (Math.abs(s) >= secs) return rtf.format(Math.round(s / secs), unit);
+  }
+  return 'just now';
+}
+/** One-line empty state + at most one action. */
+function emptyState(text, actionLabel, onAction) {
+  const box = el('div', 'browse-empty', text);
+  if (actionLabel) {
+    const b = el('button', 'sheet-btn', actionLabel);
+    b.type = 'button';
+    b.addEventListener('click', onAction);
+    box.append(b);
+  }
+  return box;
+}
+function browseItem(p, tab) {
+  const wrap = el('div', 'browse-item');
+  wrap.dataset.id = p.id;
+  const cell = el('button', 'lib-cell');
+  cell.type = 'button';
+  cell.setAttribute('aria-label', `open ${p.title || 'untitled'}`);
+  if (p.thumbUrl) cell.append(Object.assign(el('img'), { src: p.thumbUrl, alt: '', loading: 'lazy' }));
+  cell.addEventListener('click', () => openCloud(p.id));
+  const cap = el('div', 'browse-caption');
+  const text = el('div', 'browse-text');
+  text.append(el('span', 'browse-title', p.title || 'untitled'));
+  const meta = el('span', 'browse-meta', tab === 'mine' ? ago(p.updatedAt) : (p.author ?? ''));
+  if (tab === 'mine' && p.visibility === 'private') meta.insertAdjacentHTML('afterbegin', LOCK_SVG); // lock-only marker
+  text.append(meta);
+  cap.append(text);
+  if (tab === 'mine') {
+    const more = el('button', 'icon-btn');
+    more.type = 'button';
+    more.innerHTML = KEBAB_SVG;
+    more.setAttribute('aria-label', `more actions for ${p.title || 'untitled'}`);
+    more.setAttribute('aria-haspopup', 'menu');
+    more.addEventListener('click', () => {
+      cardMenu.dataset.id = p.id;
+      cardMenu.querySelector('[data-act=copy]').hidden = p.visibility === 'private';
+      openMenu(cardMenu, more);
+    });
+    cap.append(more);
+  }
+  wrap.append(cell, cap);
+  browse.items.set(p.id, p);
+  return wrap;
+}
+const mineEmpty = () =>
+  emptyState('No projects yet.', 'cloud save', () => {
+    browseDialog.close();
+    cloudSave();
+  });
+async function showBrowse(tab, append = false) {
+  browse.tab = tab;
+  for (const b of $('browse-tabs').children) {
+    b.classList.toggle('active', b.dataset.tab === tab);
+    b.setAttribute('aria-selected', String(b.dataset.tab === tab));
+  }
+  const grid = $('browse-grid');
+  $('browse-foot').hidden = true;
+  if (tab === 'mine' && !user) {
+    return grid.replaceChildren(
+      emptyState('Sign in to see the projects you saved.', 'sign in', async () => (await requireUser()) && showBrowse('mine'))
+    );
+  }
+  if (!append) {
+    // skeleton mirrors the grid: thumb + two caption lines, varied widths
+    grid.replaceChildren(
+      ...Array.from({ length: 8 }, (_, i) => {
+        const s = el('div', 'browse-item browse-skel');
+        s.append(el('div', 'lib-skel'), Object.assign(el('div', 'lib-skel skel-line'), { style: `width:${[70, 55, 80, 60][i % 4]}%` }));
+        return s;
+      })
+    );
+  }
+  grid.setAttribute('aria-busy', 'true');
+  try {
+    const res = tab === 'mine' ? await listMine() : await listGallery(append ? browse.next : null);
+    if (browse.tab !== tab) return; // switched tabs mid-load
+    browse.next = res.next ?? null;
+    if (!append) grid.replaceChildren();
+    for (const p of res.projects) grid.append(browseItem(p, tab));
+    if (!grid.children.length) grid.append(tab === 'mine' ? mineEmpty() : emptyState('Nothing in the gallery yet.'));
+    $('browse-foot').hidden = !browse.next;
+  } catch (err) {
+    grid.replaceChildren(emptyState(`Couldn't load projects. ${err.message}`, 'try again', () => showBrowse(tab)));
+  } finally {
+    grid.removeAttribute('aria-busy');
+  }
+}
+async function openCloud(id) {
+  if (
+    scene.items.length &&
+    id !== cloud.id &&
+    !(await confirmSheet({
+      title: 'replace the canvas?',
+      body: "anything you haven't saved goes away.",
+      action: 'open project',
+      destructive: false
+    }))
+  ) {
+    return;
+  }
+  browseDialog.close();
+  setStatus('loading project…');
+  try {
+    const p = await loadCloud(id);
+    await loadProject(p.data);
+    setCloud(p);
+  } catch (err) {
+    setStatus(`couldn't open it. ${err.message}`);
+  }
+}
+/** Optimistic delete: the card leaves now and comes back if the server says no. */
+async function deleteProject(id) {
+  const p = browse.items.get(id);
+  const name = p?.title || 'untitled';
+  const ok = await confirmSheet({
+    title: `delete “${name}”?`,
+    body: 'its share link stops working. this cannot be undone.',
+    action: 'delete project'
+  });
+  if (!ok) return;
+  const card = $('browse-grid').querySelector(`[data-id="${CSS.escape(id)}"]`);
+  const next = card?.nextSibling ?? null;
+  card?.remove();
+  try {
+    await deleteCloud(id);
+    if (cloud.id === id) setCloud(null);
+    setStatus(`deleted ${name}`);
+    if (!$('browse-grid').querySelector('.browse-item')) $('browse-grid').replaceChildren(mineEmpty());
+  } catch (err) {
+    if (card) $('browse-grid').insertBefore(card, next);
+    setStatus(`couldn't delete ${name}. ${err.message}`);
+  }
+}
+cardMenu.addEventListener('click', async (e) => {
+  const act = e.target.closest('[data-act]')?.dataset.act;
+  if (!act) return;
+  const id = cardMenu.dataset.id;
+  cardMenu.hidePopover();
+  if (act === 'open') openCloud(id);
+  else if (act === 'delete') deleteProject(id);
+  else if (act === 'copy') {
+    if (await copyText(shareUrl(id))) setStatus('link copied');
+    else setStatus("couldn't copy the link");
+  }
+});
+$('cloud-browse').addEventListener('click', () => {
+  openSheet(browseDialog);
+  showBrowse(browse.tab);
+});
+$('browse-tabs').addEventListener('click', (e) => {
+  const tab = e.target.closest('[data-tab]')?.dataset.tab;
+  if (tab) showBrowse(tab);
+});
+$('browse-more').addEventListener('click', () => showBrowse('gallery', true));
+
+currentUser().then(setUser); // label only; never blocks the canvas
+
+// restore BEFORE anything below can touch scene.items (the selftest clears them).
+// A share link (?p=) wins over the local autosave; if it can't load, fall back.
+const sharedId = projectIdFromUrl(location.href);
+let sharedError = null;
+const shared = sharedId ? await loadCloud(sharedId).catch((err) => ((sharedError = err.message), null)) : null;
+if (shared?.data) {
+  await loadProject(shared.data);
+  setCloud(shared);
+} else {
+  if (sharedId) setCloud(null);
+  const restored = await loadSavedProject();
+  if (restored?.items?.length) await loadProject(restored);
+  if (sharedError) setStatus(sharedError); // loadProject clears the status
+}
 
 // ── keyboard ─────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
