@@ -86,4 +86,4 @@ Deferred: B2 cleanup of soft-deleted/orphaned uploads, account deletion, email v
 ## Verify
 
 `bun run test`, `bun run build`, `bun run dev` + `/?selftest=drip`. Deploy: merge to
-`main` → Vercel Git integration (project `gifpaint`, team `zakros`).
+`main` → Vercel Git integration (project `gifpaint`, team `naeluhs-projects`).

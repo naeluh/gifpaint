@@ -149,7 +149,7 @@ Better Auth plugins. `neon.ts` is the (empty) Neon config policy — DB only.
 |---|---|---|
 | `DATABASE_URL` | prod + preview + `.env.local` | Neon pooled URL (`neon link` / `neon deploy` pull it locally) |
 | `BETTER_AUTH_SECRET` | prod + preview + `.env.local` | `openssl rand -base64 32` |
-| `BETTER_AUTH_URL` | prod | `https://gifpaint-zakros.vercel.app` (previews resolve their own host) |
+| `BETTER_AUTH_URL` | prod | `https://gifpaint-naeluhs-projects.vercel.app` (previews resolve their own host) |
 | `GOOGLE_CLIENT_ID` / `_SECRET` | prod (+ local) | optional; callback `https://<host>/api/auth/callback/google` |
 | `GITHUB_CLIENT_ID` / `_SECRET` | prod (+ local) | optional; callback `https://<host>/api/auth/callback/github` |
 | `B2_KEY_ID` / `B2_APP_KEY` | prod + preview | B2 application key scoped to the bucket |
@@ -162,14 +162,14 @@ projects with uploads can't be cloud-saved (GIPHY/picsum-only projects still can
 
 The B2 bucket must be **public** with CORS rules (web UI → bucket → CORS → custom):
 `s3_get`/`s3_head` from `*` (canvas export and GIF decode read assets cross-origin) and
-`s3_put` from the app origins (`https://gifpaint-zakros.vercel.app`, `http://localhost:3000`),
+`s3_put` from the app origins (`https://gifpaint-naeluhs-projects.vercel.app`, `http://localhost:3000`),
 allowed headers `content-type`. OAuth sign-in works only on hosts registered with the
 provider (production + localhost); preview URLs use email + password.
 
 ## Deploy
 
 Production deploys from `main` through the Vercel Git integration (project `gifpaint`,
-team `zakros`, repo `naeluh/gifpaint`). Merge to `main` and Vercel builds `vite build` →
+team `naeluhs-projects` (naeluh's personal projects), repo `naeluh/gifpaint`). Merge to `main` and Vercel builds `vite build` →
 `dist/`. Branch pushes get preview URLs. `bun run deploy` (`vercel --prod`) is the manual
 escape hatch; `.vercelignore` keeps the legacy `gifpaint/` and `yourimage/` trees out of
 CLI uploads. `vercel deploy` (no `--prod`) makes a preview for checking API changes.

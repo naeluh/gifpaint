@@ -11,7 +11,7 @@ description: gifpaint cloud side — Vercel functions in api/, Better Auth on Ne
   `vercel.json` rewrites `/api/auth/(.*)` → `/api/auth?__ba=$1`; `restorePath` (`api/_lib/http.js`)
   rebuilds the pathname. `:path*` in a rewrite destination query is rejected by Vercel's matcher.
 - `api/_lib/db.js` one `pg` Pool on `globalThis` (Neon pooled URL) shared by Better Auth and `q()`.
-- `api/_lib/auth.js` Better Auth: `baseURL.allowedHosts` (prod, `gifpaint-*-zakros.vercel.app`,
+- `api/_lib/auth.js` Better Auth: `baseURL.allowedHosts` (prod, `gifpaint-*-naeluhs-projects.vercel.app`,
   `localhost:*`), OAuth providers only when env keys exist, `rateLimit.storage: 'database'`.
 - `api/_lib/validate.js` is pure (no env/DB) — every trust rule lives here and is pinned in
   `test/api.test.mjs`. Asset URLs: `B2_PUBLIC_URL/` prefix, GIPHY media hosts, picsum only.

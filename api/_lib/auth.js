@@ -18,8 +18,8 @@ export const auth = betterAuth({
   // the request host against this allowlist. OAuth callbacks still only work
   // on hosts registered with the provider (prod + localhost).
   baseURL: {
-    allowedHosts: ['gifpaint-zakros.vercel.app', 'gifpaint-*-zakros.vercel.app', 'localhost:*'],
-    fallback: env.BETTER_AUTH_URL ?? 'https://gifpaint-zakros.vercel.app',
+    allowedHosts: ['gifpaint-naeluhs-projects.vercel.app', 'gifpaint-*-naeluhs-projects.vercel.app', 'localhost:*'],
+    fallback: env.BETTER_AUTH_URL ?? 'https://gifpaint-naeluhs-projects.vercel.app',
     protocol: env.VERCEL ? 'https' : 'http'
   },
   emailAndPassword: { enabled: true, minPasswordLength: 8 },
