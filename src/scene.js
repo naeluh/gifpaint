@@ -88,6 +88,11 @@ export function makeImageItem(srcId, x, y, scale = 1) {
   return { id: uid(), type: 'image', srcId, x, y, scale, rotation: 0, opacity: 1 };
 }
 
+/**
+ * @param {string} brush brush id
+ * @param {{color:string,size:number,srcId?:string|null,drip?:object}} opts
+ *   `drip` = physics params → the item also carries `ops` (recorded deposits, see drip.js)
+ */
 export function makeStrokeItem(brush, opts) {
   return {
     id: uid(),
@@ -98,8 +103,33 @@ export function makeStrokeItem(brush, opts) {
     srcId: opts.srcId ?? null,
     opacity: 1,
     seed: Math.floor(Math.random() * 1e9),
-    points: []
+    points: [],
+    ...(opts.drip ? { drip: { ...opts.drip }, ops: [] } : {})
   };
+}
+
+/** Canvas point → image item's local (unrotated, unscaled) coords. */
+function toLocal(it, x, y) {
+  const cos = Math.cos(-it.rotation);
+  const sin = Math.sin(-it.rotation);
+  const dx = x - it.x;
+  const dy = y - it.y;
+  return { lx: (dx * cos - dy * sin) / it.scale, ly: (dx * sin + dy * cos) / it.scale };
+}
+
+export const HANDLE_PX = 8; // resize handle square, CSS px (unscaled)
+
+/**
+ * True when (x,y) is on one of the 4 corner resize handles of an image item.
+ * @param {object} it image item
+ * @param {{width:number,height:number}} src loaded source
+ * @param {number} x canvas px
+ * @param {number} y canvas px
+ */
+export function handleAt(it, src, x, y) {
+  const { lx, ly } = toLocal(it, x, y);
+  const tol = HANDLE_PX / it.scale;
+  return Math.abs(Math.abs(lx) - src.width / 2) <= tol && Math.abs(Math.abs(ly) - src.height / 2) <= tol;
 }
 
 // hit test: topmost item under point. Strokes tested by distance to points.
@@ -109,12 +139,7 @@ export function hitTest(scene, sources, x, y) {
     if (it.type === 'image') {
       const src = sources.get(it.srcId);
       if (!src) continue;
-      const cos = Math.cos(-it.rotation);
-      const sin = Math.sin(-it.rotation);
-      const dx = x - it.x;
-      const dy = y - it.y;
-      const lx = (dx * cos - dy * sin) / it.scale;
-      const ly = (dx * sin + dy * cos) / it.scale;
+      const { lx, ly } = toLocal(it, x, y);
       if (Math.abs(lx) <= src.width / 2 && Math.abs(ly) <= src.height / 2) return it;
     } else {
       const r = Math.max(it.size, 12);
@@ -162,6 +187,11 @@ function drawSelection(scene, ctx, sources, id) {
       const w = src.width * it.scale;
       const h = src.height * it.scale;
       ctx.strokeRect(-w / 2, -h / 2, w, h);
+      // corner resize handles (fillRect — no dash inheritance)
+      ctx.fillStyle = '#ff7a4a';
+      const hp = HANDLE_PX;
+      for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]])
+        ctx.fillRect((sx * w) / 2 - hp / 2, (sy * h) / 2 - hp / 2, hp, hp);
     }
   } else if (it.points.length) {
     let minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
@@ -196,5 +226,12 @@ export function offsetStroke(item, dx, dy) {
   for (const p of item.points) {
     p.x += dx;
     p.y += dy;
+  }
+  for (const op of item.ops ?? []) {
+    if (op.t === 'seg') {
+      op.x0 += dx; op.y0 += dy; op.x1 += dx; op.y1 += dy;
+    } else {
+      op.x += dx; op.y += dy; // blob / splat: children are relative to (x,y)
+    }
   }
 }

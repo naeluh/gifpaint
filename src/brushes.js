@@ -1,5 +1,6 @@
 // Brush set. Each stroke item is re-rendered every frame from its points, so
 // GIF-based brushes animate live. All draw funcs are pure-ish (seeded RNG).
+import { replayDripOps } from './drip.js';
 
 export const BRUSHES = [
   { id: 'reveal', label: 'reveal', needsSource: true }, // the original — default
@@ -9,6 +10,10 @@ export const BRUSHES = [
   { id: 'glow', label: 'glow', canSource: true },
   { id: 'rainbow', label: 'rainbow' },
   { id: 'spray', label: 'spray', canSource: true },
+  // Pollock physics (drip.js): pour, tapped-brush spatter, tool dragged through wet paint
+  { id: 'drip', label: 'drip', canSource: true },
+  { id: 'spatter', label: 'spatter', canSource: true },
+  { id: 'scrape', label: 'scrape' },
   { id: 'eraser', label: 'eraser' }
 ];
 
@@ -187,6 +192,25 @@ export function renderStroke(ctx, item, now, sources, W, H) {
     case 'rainbow':
       lineStroke(ctx, item, (i) => `hsl(${(item.seed + i * 4) % 360} 100% 60%)`);
       break;
+
+    case 'drip':
+    case 'spatter':
+      // with a source picked the poured shapes are the mask (source-in), same as ink/glow/spray
+      if (src) maskSource(ctx, src, now, W, H, (c) => replayDripOps(c, item, { mask: true }));
+      else replayDripOps(ctx, item);
+      break;
+
+    case 'scrape': {
+      // scraped streaks keep the paint they came from: plain colour, or that pool's gif/video
+      replayDripOps(ctx, item, { filter: (op) => !op.src });
+      const bySrc = new Map();
+      for (const op of item.ops ?? []) if (op.src) (bySrc.get(op.src) ?? bySrc.set(op.src, []).get(op.src)).push(op);
+      for (const [srcId, subset] of bySrc) {
+        const s = sources.get(srcId);
+        if (s) maskSource(ctx, s, now, W, H, (c) => replayDripOps(c, { ops: subset, color: '#000' }, { mask: true }));
+      }
+      break;
+    }
 
     case 'eraser':
       ctx.globalCompositeOperation = 'destination-out';

@@ -2,17 +2,24 @@
   "name": "paint",
   "version": "0.0.0",
   "devDependencies": {
+    "@neon/config": "^1.8.3",
+    "@neon/env": "^1.4.8",
     "vite": "^8.0.12"
   },
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node test/scene.test.mjs && node test/drip.test.mjs && node test/store.test.mjs && node test/api.test.mjs",
+    "deploy": "vercel --prod"
   },
   "type": "module",
   "dependencies": {
+    "aws4fetch": "^1.0.20",
+    "better-auth": "^1.7.6",
     "gifenc": "^1.0.3",
-    "gifuct-js": "^2.1.2"
+    "gifuct-js": "^2.1.2",
+    "pg": "^8.23.0"
   }
 }

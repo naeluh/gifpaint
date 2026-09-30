@@ -1,0 +1,10 @@
+# CLI (preview) uploads only — Git-integration builds clone the repo.
+# Legacy sites and scratch files that the Vite build never reads.
+gifpaint
+yourimage
+gifpaint-project.json
+.DS_Store
+dist
+node_modules
+.vite
+.claude
